@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Sys {
@@ -18,7 +20,21 @@ public class Sys {
 	}
 
 	//menu seen straight away
-	public static void loginMenu() {
+	public static void loginMenu() throws FileNotFoundException {
+		
+		/**Scanner su = new Scanner(new File("src/users.csv"));
+		su.useDelimiter(",");
+		while (su.hasNext()) {
+			String username = su.next();
+			String password = su.next();
+			String account = su.next();
+
+			System.out.print(username + " " + password + " " + account);
+
+		}
+		su.close();
+		*/
+		
 		String username, password;
 		System.out.println("-- DEPOT SYSTEM--");
 		System.out.println(" --LOGIN--");
