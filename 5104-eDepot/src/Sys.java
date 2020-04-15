@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,13 +85,15 @@ public class Sys {
 			viewSchedule();
 			break;
 		}
-		case "Q":
+		case "Q": {
 			menuLoop = false;
 			loggedIn = false;
 			loggedInUser = null;
 			break;
+		}
 		default:
 			System.out.println("Invalid choice entered, please try again.");
+			break;
 		}
 	}
 
@@ -139,8 +142,28 @@ public class Sys {
 	private static void viewSchedule() {
 
 		System.out.println("--View Schedule--");
-
-	}
+		String commaDelimiter=",";
+		Scanner scanner= new Scanner(System.in);
+		scanner=null;
+		
+		try {
+			scanner=new Scanner(new File("src/schedule.csv"));
+			scanner.useDelimiter(commaDelimiter);
+			
+			while(scanner.hasNext()) 
+			{
+			System.out.println(scanner.next()+" ");
+			}
+		}
+			catch(FileNotFoundException fe)
+			{
+				fe.printStackTrace();
+			}
+			finally
+			{
+				scanner.close();
+			}
+			}
 
 	private static void arrangeSchedule() throws IOException {
 		FileWriter csvWriter = new FileWriter("src/new.csv");
@@ -166,7 +189,7 @@ public class Sys {
 		csvWriter.close();
 
 		System.out.println("---Complete---");
-		
+
 		managerMenu();
 
 	}
