@@ -75,7 +75,6 @@ public class Sys {
 		String choice = "";
 		System.out.println("-- DEPOT SYSTEM--");
 		System.out.println("1. View Schedule");
-		System.out.println("2. New Schedule");
 		System.out.println("Q. Log Out");
 		System.out.print("Pick : ");
 		choice = userInput.nextLine();
@@ -83,10 +82,6 @@ public class Sys {
 		switch (choice) {
 		case "1": {
 			viewSchedule();
-			break;
-		}
-		case "2": {
-			arrangeSchedule();
 			break;
 		}
 		case "Q":
@@ -171,6 +166,8 @@ public class Sys {
 		csvWriter.close();
 
 		System.out.println("---Complete---");
+		
+		managerMenu();
 
 	}
 
