@@ -1,6 +1,10 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import depot.User;
@@ -12,10 +16,10 @@ public class Sys {
 	private static boolean menuLoop = true;
 	private static Scanner userInput = new Scanner(System.in);
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws IOException {
 		boolean running = true;
 
-		//displaying the correct menus
+		// displaying the correct menus
 		while (running) {
 			if (!loggedIn) {
 				loginMenu();
@@ -23,8 +27,7 @@ public class Sys {
 				if (loggedInUser.getrole().equals("Driver")) {
 					driverMenu();
 
-				}
-				else if (loggedInUser.getrole().equals("Manager")) {
+				} else if (loggedInUser.getrole().equals("Manager")) {
 					managerMenu();
 				}
 			}
@@ -58,9 +61,8 @@ public class Sys {
 		password = userInput.nextLine();
 
 		for (User user : users) {
-			 //System.out.println(user.getpassword());
+			// System.out.println(user.getpassword());
 			if ((user.getusername().equals(username)) && (user.getpassword().equals(password))) {
-
 
 				loggedIn = true;
 				loggedInUser = user;
@@ -69,10 +71,11 @@ public class Sys {
 	}
 
 //the menu the driver sees
-	private static void driverMenu() {
+	private static void driverMenu() throws IOException {
 		String choice = "";
 		System.out.println("-- DEPOT SYSTEM--");
 		System.out.println("1. View Schedule");
+		System.out.println("2. New Schedule");
 		System.out.println("Q. Log Out");
 		System.out.print("Pick : ");
 		choice = userInput.nextLine();
@@ -80,6 +83,10 @@ public class Sys {
 		switch (choice) {
 		case "1": {
 			viewSchedule();
+			break;
+		}
+		case "2": {
+			arrangeSchedule();
 			break;
 		}
 		case "Q":
@@ -94,7 +101,7 @@ public class Sys {
 
 //else
 	// the menu the manager sees
-	private static void managerMenu() {
+	private static void managerMenu() throws IOException {
 		String choice = "";
 		System.out.println("-- DEPOT SYSTEM--");
 		System.out.println("1. View Schedule");
@@ -132,34 +139,38 @@ public class Sys {
 				System.out.println("Invalid choice entered, please try again.");
 			}
 		}
-	} 
+	}
 
-	
 	private static void viewSchedule() {
 
 		System.out.println("--View Schedule--");
 
 	}
 
-	private static void arrangeSchedule() {
-		System.out.println("Specify client name:");
-		String clientName, startDate, endDate, vehicleCode, driverCode;
-		clientName = userInput.nextLine();
-		System.out.println("Specify start date:");
-		startDate = userInput.nextLine();
-		System.out.println("Specify end date:");
-		endDate = userInput.nextLine();
+	private static void arrangeSchedule() throws IOException {
+		FileWriter csvWriter = new FileWriter("src/new.csv");
+		Scanner in = new Scanner(System.in);
 
-		System.out.println("Specify vehicle code:");
-		vehicleCode = userInput.nextLine();
+		System.out.println("Enter Client Name:");
+		String client = in.next();
+		System.out.println("Enter Start Date: (DD/MM/YYYY)");
+		String start = in.next();
+		System.out.println("Enter End Date: (DD/MM/YYYY)");
+		String end = in.next();
+		System.out.println("Enter Client ID:");
+		String clientID = in.next();
 
-		// error message
-		System.out.println("Invalid Vehicle Code");
+		List<List<String>> rows = Arrays.asList(Arrays.asList(client, start, end, clientID));
 
-		System.out.println("Specify driver code:");
-		driverCode = userInput.nextLine();
-		// error message
-		System.out.println("Invalid Driver Code");
+		for (List<String> rowData : rows) {
+			csvWriter.append(String.join(",", rowData));
+			csvWriter.append("\n");
+		}
+
+		csvWriter.flush();
+		csvWriter.close();
+
+		System.out.println("---Complete---");
 
 	}
 
