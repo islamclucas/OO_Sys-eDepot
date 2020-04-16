@@ -67,6 +67,8 @@ public class Sys {
 
 				loggedIn = true;
 				loggedInUser = user;
+			} else if ((!user.getusername().equals(username)) && (!user.getpassword().equals(password))) {
+				System.out.println("Incorrect login details.");
 			}
 		}
 	}
