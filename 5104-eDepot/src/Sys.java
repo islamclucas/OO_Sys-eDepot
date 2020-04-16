@@ -104,8 +104,7 @@ public class Sys {
 		System.out.println("-- DEPOT SYSTEM--");
 		System.out.println("1. View Schedule");
 		System.out.println("2. Setup Work Schedule");
-		System.out.println("3. Check Availability");
-		System.out.println("4. Move Vehicle");
+		System.out.println("3. Move Vehicle");
 		System.out.println("Q. Log Out");
 		System.out.print("Pick : ");
 		choice = userInput.nextLine();
@@ -120,10 +119,6 @@ public class Sys {
 				break;
 
 			case "3":
-				checkAvailability();
-				break;
-
-			case "4":
 				moveVehicle();
 				break;
 
@@ -142,28 +137,23 @@ public class Sys {
 	private static void viewSchedule() {
 
 		System.out.println("--View Schedule--");
-		String commaDelimiter=",";
-		Scanner scanner= new Scanner(System.in);
-		scanner=null;
-		
+		String commaDelimiter = ",";
+		Scanner scanner = new Scanner(System.in);
+		scanner = null;
+
 		try {
-			scanner=new Scanner(new File("src/schedule.csv"));
+			scanner = new Scanner(new File("src/schedule.csv"));
 			scanner.useDelimiter(commaDelimiter);
-			
-			while(scanner.hasNext()) 
-			{
-			System.out.println(scanner.next()+" ");
+
+			while (scanner.hasNext()) {
+				System.out.println(scanner.next() + " ");
 			}
+		} catch (FileNotFoundException fe) {
+			fe.printStackTrace();
+		} finally {
+			scanner.close();
 		}
-			catch(FileNotFoundException fe)
-			{
-				fe.printStackTrace();
-			}
-			finally
-			{
-				scanner.close();
-			}
-			}
+	}
 
 	private static void arrangeSchedule() throws IOException {
 		FileWriter csvWriter = new FileWriter("src/new.csv");
@@ -175,42 +165,68 @@ public class Sys {
 		String start = in.next();
 		System.out.println("Enter End Date: (DD/MM/YYYY)");
 		String end = in.next();
-		System.out.println("Enter Client ID:");
-		String clientID = in.next();
+		System.out.println("Enter Vehicle ID:");
+		String vehicleID = in.next();
+		System.out.println("Enter Driver ID:");
+		String driverID = in.next();
 
-		List<List<String>> rows = Arrays.asList(Arrays.asList(client, start, end, clientID));
+		List<List<String>> rows = Arrays.asList(Arrays.asList(client, start, end, vehicleID, driverID));
 
 		for (List<String> rowData : rows) {
 			csvWriter.append(String.join(",", rowData));
 			csvWriter.append("\n");
 		}
 
-		csvWriter.flush();
-		csvWriter.close();
+		System.out.println("--Confirm new schedule details--");
+		System.out.println("Client Name: " + client);
+		System.out.println("Start Date: " + start);
+		System.out.println("End Date: " + end);
+		System.out.println("Vehicle ID: " + vehicleID);
+		System.out.println("Driver ID: " + driverID);
+		System.out.println("Is this correct Y/N");
+		String choice = in.next();
 
-		System.out.println("---Complete---");
+		if (choice.contentEquals("Y")) {
+			
+			System.out.println("---Complete---");
+			csvWriter.flush();
+			csvWriter.close();	
+		}
+		else if (choice.contentEquals("N")) {
+			System.out.println("--Schedule Cancelled--");
+		}
 
 		managerMenu();
 
 	}
 
-	private static void checkAvailability() {
-	}
-
 	private static void moveVehicle() {
+		Scanner in = new Scanner(System.in);
+
 		System.out.println("--Move Vehicle--");
-		System.out.println("Specify vehicle:");
-		// error message
+		System.out.println("Specify vehicle ID:");
+		String vehicleID = in.next();
+
+		// check vehicle id exists
 		System.out.println("Invalid Vehicle Code");
 		System.out.println("Specify move date:");
-		// error message
+		String moveDate = in.next();
+
+		// check date is valid
 		System.out.println("Invalid date");
 		// error messages
 		System.out.println("Vehicle is in active state");
 		System.out.println("Vehicle is in pending state");
 		// if vehicle isnt active or pending
-		System.out.println("Specify depot:");
-		System.out.println("Vehicle Move Succesful");
+		System.out.println("Specify depot you wish to move vehicle to:");
+		String newDepot = in.next();
+
+		System.out.println(
+				"Do you confirm you wish to move Vehicle ID: " + vehicleID + " from depot:" + " to depot:" + newDepot);
+		System.out.println("Is this correct Y/N");
+		String choice = in.next();
+		System.out.println("---Vehicle Move Succesful---");
+		System.out.println("---Vehicle Move Cancelled---");
 
 	}
 }
