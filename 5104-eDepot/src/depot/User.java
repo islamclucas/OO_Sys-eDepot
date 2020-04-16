@@ -12,16 +12,16 @@ public class User {
 		this.depot = depot;
 
 	}
-	public String getusername() {
+	public String getUsername() {
 		return this.username;
 	}
-	public String getpassword() {
+	public String getPassword() {
 		return this.password;
 	}
-	public String getrole() {
+	public String getRole() {
 		return this.role;
 	}
-	public String getdepot() {
+	public String getDepot() {
 		return this.depot;
 	}
 }

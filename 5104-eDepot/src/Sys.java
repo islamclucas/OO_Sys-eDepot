@@ -17,6 +17,7 @@ public class Sys {
 	private static ArrayList<User> users = new ArrayList<User>();
 	private static boolean menuLoop = true;
 	private static Scanner userInput = new Scanner(System.in);
+	public static String curUser = " ";
 
 	public static void main(String[] args) throws IOException {
 		boolean running = true;
@@ -26,10 +27,10 @@ public class Sys {
 			if (!loggedIn) {
 				loginMenu();
 			} else {
-				if (loggedInUser.getrole().equals("Driver")) {
+				if (loggedInUser.getRole().equals("Driver")) {
 					driverMenu();
 
-				} else if (loggedInUser.getrole().equals("Manager")) {
+				} else if (loggedInUser.getRole().equals("Manager")) {
 					managerMenu();
 				}
 			}
@@ -64,12 +65,13 @@ public class Sys {
 
 		for (User user : users) {
 			// System.out.println(user.getpassword());
-			if ((user.getusername().equals(username)) && (user.getpassword().equals(password))) {
-
+			if ((user.getUsername().equals(username)) && (user.getPassword().equals(password))) {
+				curUser = username;
 				loggedIn = true;
 				loggedInUser = user;
-				break;
 
+				System.out.println("welcome user : " + curUser);
+				break;
 			}
 		}
 		if (!loggedIn) {
@@ -79,22 +81,26 @@ public class Sys {
 
 //the menu the driver sees
 	private static void driverMenu() throws IOException {
+		while(menuLoop) {
 		String choice = "";
 		System.out.println("-- DEPOT SYSTEM--");
-		System.out.println("1. View Schedule");
+		System.out.println("1. View Personal Schedule");
 		System.out.println("Q. Log Out");
 		System.out.print("Pick : ");
-		choice = userInput.nextLine();
-
+		choice = (userInput.next().toUpperCase());
+		
 		switch (choice) {
 		case "1": {
-			viewSchedule();
+			personalSchedule();
 			break;
 		}
 		case "Q": {
 			menuLoop = false;
 			loggedIn = false;
 			loggedInUser = null;
+			System.out.println("Goodbye " + curUser + ".\nYou are now logged out.");
+			curUser = null;
+		
 			break;
 		}
 		default:
@@ -102,78 +108,124 @@ public class Sys {
 			break;
 		}
 	}
+	}
 
 //else
 	// the menu the manager sees
 	private static void managerMenu() throws IOException {
 		String choice = "";
 		System.out.println("-- DEPOT SYSTEM--");
-		System.out.println("1. View Schedule");
+		System.out.println("1. View All Schedules");
 		System.out.println("2. Setup Work Schedule");
 		System.out.println("3. Move Vehicle");
 		System.out.println("Q. Log Out");
 		System.out.print("Pick : ");
-		choice = userInput.nextLine();
-		while (menuLoop) {
-			switch (choice) {
-			case "1":
-				viewSchedule();
-				break;
+		choice = (userInput.next().toUpperCase());
+		// userInput.nextLine();
+		// while (menuLoop) {
+		switch (choice) {
+		case "1": {
+			viewSchedule();
+			break;
+		}
+		case "2": {
+			arrangeSchedule();
+			break;
+		}
+		case "3": {
+			moveVehicle();
+			break;
+		}
+		case "Q": {
+			menuLoop = false;
+			loggedIn = false;
+			loggedInUser = null;
+			System.out.println("Goodbye " + curUser + ".\nYou are now logged out.");
+			curUser = null;
+			break;
+		}
+		default:
 
-			case "2":
-				arrangeSchedule();
-				break;
-
-			case "3":
-				moveVehicle();
-				break;
-
-			case "Q":
-				menuLoop = false;
-				loggedIn = false;
-				loggedInUser = null;
-				break;
-			default:
-
-				System.out.println("Invalid choice entered, please try again.");
-			}
+			System.out.println("Invalid choice entered, please try again.");
+			break;
 		}
 	}
+	// }
 
+	//THE SCHEDULE MANAGERS SEE OF ALL DETAILS
+	private static void viewSchedule() throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
+		List<String> lines = new ArrayList<>();
+		String line = null;
+		System.out.println("\n");
+		while ((line = reader.readLine()) != null) {
+			lines.add(line + "\n ");
+		}
 
-		private static void viewSchedule() throws IOException {
+		int size = (lines.size());
 
-			
-			BufferedReader reader= new BufferedReader(new FileReader("src/schedule.csv"));
-			List<String>lines=new ArrayList<>();
-			String line= null;
-			while((line = reader.readLine())!=null) {
-				lines.add(line +"\n ");
+		for (int x = 0; x < size; x++) {
+			if (x == 0) {
+				String output = lines.get(x);
+
+				String formattedString = output.toString().replace(",", "\t|\t"); // remove the commas
+
+				System.out.println(formattedString
+						+ "\n________________________________________________________________________________________");
+			} else {
+				String output = lines.get(x);
+
+				String formattedString = output.toString().replace(",", "\t|\t"); // remove the commas
+
+				System.out.println(formattedString);
 			}
-			
-			int size= (lines.size());
-			
-			for(int x=0;x<size;x++) {
-				if(x==0) {
-					String output= lines.get(x);
-					
-					String formattedString = output.toString().replace(",", "\t|\t");  //remove the commas 
-					
-				System.out.println(formattedString+"\n________________________________________________________________________________________");
-				}
-				else {
-				String output= lines.get(x);
-			
-				String formattedString = output.toString().replace(",", "\t|\t");  //remove the commas 
-				
-			System.out.println(formattedString);
+		}
+		reader.close();
+	}
+//THE SCHEDULE DRIVERS SEE OF ONLY THEIR JOBS
+	private static void personalSchedule() throws IOException {
+
+		BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
+		List<String> lines = new ArrayList<>();
+		String line = null;
+		int noOutput = 0;
+		while ((line = reader.readLine()) != null) {
+			lines.add(line + "\n ");
+		}
+		int size = (lines.size());
+
+		for (int x = 0; x < size; x++) {// FIRST LINE
+			if (x == 0) {
+				String output = lines.get(x);
+
+				String formattedString = output.toString().replace(",", "\t|\t"); // remove the commas
+
+				System.out.println(formattedString
+						+ "\n________________________________________________________________________________________");
+			} else { // REST OF ARRAY
+				String output = lines.get(x);
+				{
+					if (output.contains(curUser)) {
+						String formattedString = output.toString().replace(",", "\t|\t"); // remove the commas
+						noOutput++;
+						
+						System.out.println(formattedString);
+					} else {
+						//do nowt
+					}
 				}
 			}
 		}
+			if(noOutput==0) {
+				System.out.println("NO SCHEDULED JOBS");
+			
+		}
+		reader.close();
 
+	}
 
 	private static void arrangeSchedule() throws IOException {
-		FileWriter csvWriter = new FileWriter("src/new.csv");
+		FileWriter csvWriter = new FileWriter("src/schedule.csv",true);
 		Scanner in = new Scanner(System.in);
 
 		System.out.println("Enter Client Name:");
@@ -203,13 +255,12 @@ public class Sys {
 		System.out.println("Is this correct Y/N");
 		String choice = in.next();
 
-		if (choice.contentEquals("Y")) {
-			
+		if (choice.equalsIgnoreCase("Y")) {
+
 			System.out.println("---Complete---");
 			csvWriter.flush();
-			csvWriter.close();	
-		}
-		else if (choice.contentEquals("N")) {
+			csvWriter.close();
+		} else if (choice.equalsIgnoreCase("N")) {
 			System.out.println("--Schedule Cancelled--");
 		}
 
