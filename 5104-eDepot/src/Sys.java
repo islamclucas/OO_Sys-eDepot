@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -136,26 +137,37 @@ public class Sys {
 		}
 	}
 
-	private static void viewSchedule() {
 
-		System.out.println("--View Schedule--");
-		String commaDelimiter = ",";
-		Scanner scanner = new Scanner(System.in);
-		scanner = null;
+		private static void viewSchedule() throws IOException {
 
-		try {
-			scanner = new Scanner(new File("src/schedule.csv"));
-			scanner.useDelimiter(commaDelimiter);
-
-			while (scanner.hasNext()) {
-				System.out.println(scanner.next() + " ");
+			
+			BufferedReader reader= new BufferedReader(new FileReader("src/schedule.csv"));
+			List<String>lines=new ArrayList<>();
+			String line= null;
+			while((line = reader.readLine())!=null) {
+				lines.add(line +"\n ");
 			}
-		} catch (FileNotFoundException fe) {
-			fe.printStackTrace();
-		} finally {
-			scanner.close();
+			
+			int size= (lines.size());
+			
+			for(int x=0;x<size;x++) {
+				if(x==0) {
+					String output= lines.get(x);
+					
+					String formattedString = output.toString().replace(",", "\t|\t");  //remove the commas 
+					
+				System.out.println(formattedString+"\n________________________________________________________________________________________");
+				}
+				else {
+				String output= lines.get(x);
+			
+				String formattedString = output.toString().replace(",", "\t|\t");  //remove the commas 
+				
+			System.out.println(formattedString);
+				}
+			}
 		}
-	}
+
 
 	private static void arrangeSchedule() throws IOException {
 		FileWriter csvWriter = new FileWriter("src/new.csv");
