@@ -225,6 +225,22 @@ public class Sys {
 	}
 
 	private static void arrangeSchedule() throws IOException {
+		
+		//BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
+		
+		//List<String> lines = new ArrayList<>();
+		//String line = null;
+		
+		//while ((line = reader.readLine()) != null) {
+		//    lines.add(line);
+		//}
+
+		//System.out.println(lines.get(0));
+		
+		
+		
+		
+		
 		FileWriter csvWriter = new FileWriter("src/schedule.csv",true);
 		Scanner in = new Scanner(System.in);
 
