@@ -9,12 +9,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import depot.Driver;
 import depot.User;
+import depot.Vehicle;
 
 public class Sys {
 	private static boolean loggedIn = false;
 	private static User loggedInUser = null;
 	private static ArrayList<User> users = new ArrayList<User>();
+	private static ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
+	private static ArrayList<Driver> drivers = new ArrayList<Driver>();
 	private static boolean menuLoop = true;
 	private static Scanner userInput = new Scanner(System.in);
 	public static String curUser = " ";
@@ -45,7 +49,7 @@ public class Sys {
 		while (su.hasNextLine()) {
 			String s = su.nextLine();
 			String[] split = s.split(",");
-			User y = new User(split[0], split[1], split[2], "depot");
+			User y = new User(split[0], split[1], split[2], split[3], "depot");
 			users.add(y);
 
 			// System.out.print(username + " " + password + " " + account);
@@ -81,33 +85,33 @@ public class Sys {
 
 //the menu the driver sees
 	private static void driverMenu() throws IOException {
-		while(menuLoop) {
-		String choice = "";
-		System.out.println("-- DEPOT SYSTEM--");
-		System.out.println("1. View Personal Schedule");
-		System.out.println("Q. Log Out");
-		System.out.print("Pick : ");
-		choice = (userInput.next().toUpperCase());
-		
-		switch (choice) {
-		case "1": {
-			personalSchedule();
-			break;
+		while (menuLoop) {
+			String choice = "";
+			System.out.println("-- DEPOT SYSTEM--");
+			System.out.println("1. View Personal Schedule");
+			System.out.println("Q. Log Out");
+			System.out.print("Pick : ");
+			choice = (userInput.next().toUpperCase());
+
+			switch (choice) {
+			case "1": {
+				personalSchedule();
+				break;
+			}
+			case "Q": {
+				menuLoop = false;
+				loggedIn = false;
+				loggedInUser = null;
+				System.out.println("Goodbye " + curUser + ".\nYou are now logged out.");
+				curUser = null;
+
+				break;
+			}
+			default:
+				System.out.println("Invalid choice entered, please try again.");
+				break;
+			}
 		}
-		case "Q": {
-			menuLoop = false;
-			loggedIn = false;
-			loggedInUser = null;
-			System.out.println("Goodbye " + curUser + ".\nYou are now logged out.");
-			curUser = null;
-		
-			break;
-		}
-		default:
-			System.out.println("Invalid choice entered, please try again.");
-			break;
-		}
-	}
 	}
 
 //else
@@ -152,7 +156,7 @@ public class Sys {
 	}
 	// }
 
-	//THE SCHEDULE MANAGERS SEE OF ALL DETAILS
+	// THE SCHEDULE MANAGERS SEE OF ALL DETAILS
 	private static void viewSchedule() throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
 		List<String> lines = new ArrayList<>();
@@ -182,6 +186,7 @@ public class Sys {
 		}
 		reader.close();
 	}
+
 //THE SCHEDULE DRIVERS SEE OF ONLY THEIR JOBS
 	private static void personalSchedule() throws IOException {
 
@@ -208,79 +213,101 @@ public class Sys {
 					if (output.contains(curUser)) {
 						String formattedString = output.toString().replace(",", "\t|\t"); // remove the commas
 						noOutput++;
-						
+
 						System.out.println(formattedString);
 					} else {
-						//do nowt
+						// do nowt
 					}
 				}
 			}
 		}
-			if(noOutput==0) {
-				System.out.println("NO SCHEDULED JOBS");
-			
+		if (noOutput == 0) {
+			System.out.println("NO SCHEDULED JOBS");
+
 		}
 		reader.close();
 
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	private static void arrangeSchedule() throws IOException {
-		
-		//BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
-		
-		//List<String> lines = new ArrayList<>();
-		//String line = null;
-		
-		//while ((line = reader.readLine()) != null) {
-		//    lines.add(line);
-		//}
 
-		//System.out.println(lines.get(0));
-		
-		
-		
-		
-		
-		FileWriter csvWriter = new FileWriter("src/schedule.csv",true);
-		Scanner in = new Scanner(System.in);
+		Scanner ss = new Scanner(new File("src/vehicle.csv"));
+		ss.useDelimiter(",");
+		while (ss.hasNextLine()) {
+			String s = ss.nextLine();
+			String[] split = s.split(",");
+			Vehicle x = new Vehicle(split[0], split[1], split[2], split[3], "depot");
+			vehicles.add(x);
 
-		System.out.println("Enter Client Name:");
-		String client = in.next();
-		System.out.println("Enter Start Date: (DD/MM/YYYY)");
-		String start = in.next();
-		System.out.println("Enter End Date: (DD/MM/YYYY)");
-		String end = in.next();
-		System.out.println("Enter Vehicle ID:");
-		String vehicleID = in.next();
-		System.out.println("Enter Driver ID:");
-		String driverID = in.next();
+			FileWriter csvWriter = new FileWriter("src/schedule.csv", true);
+			Scanner in = new Scanner(System.in);
 
-		List<List<String>> rows = Arrays.asList(Arrays.asList(client, start, end, vehicleID, driverID));
+			System.out.println("Enter Client Name:");
+			String client = in.next();
+			System.out.println("Enter Start Date: (DD/MM/YYYY)");
+			String start = in.next();
+			System.out.println("Enter End Date: (DD/MM/YYYY)");
+			String end = in.next();
+			System.out.println("Enter Vehicle Reg:");
+			String vehicleReg = in.next();
+			System.out.println("Enter Driver ID:");
+			String driverID = in.next();
 
-		for (List<String> rowData : rows) {
-			csvWriter.append(String.join(",", rowData));
-			csvWriter.append("\n");
+			List<List<String>> rows = Arrays.asList(Arrays.asList(client, start, end, vehicleReg, driverID));
+
+			for (Driver driver : drivers) {
+				// System.out.println(user.getpassword());
+				if ((driver.getdriverID().equals(driverID))) {
+					System.out.println("Driver Found");
+					
+					break;
+				} else {
+					System.out.println("Driver Not Found");
+					arrangeSchedule();
+					break;
+				}
+			}
+			
+			for (Vehicle vehicle : vehicles) {
+				// System.out.println(user.getpassword());
+				if ((vehicle.getregNo().equals(vehicleReg))) {
+					System.out.println("Vehicle Found");
+					
+					break;
+				} else {
+					System.out.println("Vehicle Not Found");
+					arrangeSchedule();
+					break;
+				}
+			}
+			
+
+			for (List<String> rowData : rows) {
+				csvWriter.append(String.join(",", rowData));
+				csvWriter.append("\n");
+			}
+
+			System.out.println("--Confirm new schedule details--");
+			System.out.println("Client Name: " + client);
+			System.out.println("Start Date: " + start);
+			System.out.println("End Date: " + end);
+			System.out.println("Vehicle ID: " + vehicleReg);
+			System.out.println("Driver ID: " + driverID);
+			System.out.println("Is this correct Y/N");
+			String choice = in.next();
+
+			if (choice.equalsIgnoreCase("Y")) {
+
+				System.out.println("---Complete---");
+				csvWriter.flush();
+				csvWriter.close();
+			} else if (choice.equalsIgnoreCase("N")) {
+				System.out.println("--Schedule Cancelled--");
+			}
+
+			managerMenu();
 		}
-
-		System.out.println("--Confirm new schedule details--");
-		System.out.println("Client Name: " + client);
-		System.out.println("Start Date: " + start);
-		System.out.println("End Date: " + end);
-		System.out.println("Vehicle ID: " + vehicleID);
-		System.out.println("Driver ID: " + driverID);
-		System.out.println("Is this correct Y/N");
-		String choice = in.next();
-
-		if (choice.equalsIgnoreCase("Y")) {
-
-			System.out.println("---Complete---");
-			csvWriter.flush();
-			csvWriter.close();
-		} else if (choice.equalsIgnoreCase("N")) {
-			System.out.println("--Schedule Cancelled--");
-		}
-
-		managerMenu();
 
 	}
 
