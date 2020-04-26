@@ -1,33 +1,48 @@
 package depot;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class WorkSchedule {
-	protected String client;
-	protected Date startDate;
-	protected Date endDate;
+	private String client;
+	private LocalDateTime startDate;
+	private LocalDateTime endDate;
+	private String vehicleReg;
+	private String driverID;
 
-	public WorkSchedule(String client, Date startDate, Date endDate) {
+	public WorkSchedule(String client, String startDate, String endDate, String vehicleReg, String driverID) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
 		this.client = client;
-		this.startDate = startDate;
-		this.endDate = endDate;
+		this.startDate = LocalDateTime.parse(startDate, formatter);
+		this.endDate = LocalDateTime.parse(endDate, formatter);
+		this.vehicleReg = vehicleReg;
+		this.driverID = driverID;
+
 	}
 
-	//view work schedule
-	//client name
-	//start date
-	//end date
-	//driver
-	//vehicle type
-	
-	
-	// arrange work schedule
-	// System.out.print.ln("--Work Schedule Setup--");
-	// System.out.print.ln("What is the name of the client?");
-	//	System.out.print.ln("What is the start date?");
-	//	System.out.print.ln("What is the end date?");
-	//	System.out.print.ln("Who is the driver?");
-	//	System.out.print.ln("What is the vehicle type?");
+	public String getClient() {
+		return this.client;
+	}
 
+	public LocalDateTime getStartDate() {
+		return this.startDate;
+	}
 
+	public LocalDateTime getEndDate() {
+		return this.endDate;
+	}
+
+	public String getVehicleReg() {
+		return this.vehicleReg;
+	}
+
+	public  String getDriverID() {
+		return this.driverID;
+	}
 }
+
+//private String depot code
+// private Vehicle vehicle;
+// private Driver driver;
+

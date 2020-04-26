@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,12 +18,15 @@ import java.util.Scanner;
 import depot.Driver;
 import depot.User;
 import depot.Vehicle;
+import depot.WorkSchedule;
 
 public class Sys {
 	private static boolean loggedIn = false;
 	private static User loggedInUser = null;
 	private static ArrayList<User> users = new ArrayList<User>();
 	private static ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
+	private static ArrayList<WorkSchedule> workschedules = new ArrayList<WorkSchedule>();
+
 	private static ArrayList<Driver> drivers = new ArrayList<Driver>();
 	private static boolean menuLoop = true;
 	private static Scanner userInput = new Scanner(System.in);
@@ -40,6 +45,9 @@ public class Sys {
 
 				} else if (loggedInUser.getRole().equals("Manager")) {
 					managerMenu();
+				} else {
+					System.out.println("Invalid job role.");
+					loginMenu();
 				}
 			}
 		}
@@ -186,14 +194,14 @@ public class Sys {
 			if (x == 0) {
 				String output = lines.get(x);
 
-				String formattedString = output.toString().replace(",", "\t|\t"); // remove the commas
+				String formattedString = output.toString().replace(",", "\t|\t");
 
 				System.out.println(formattedString
 						+ "\n________________________________________________________________________________________");
 			} else {
 				String output = lines.get(x);
 
-				String formattedString = output.toString().replace(",", "\t|\t"); // remove the commas
+				String formattedString = output.toString().replace(",", "\t|\t");
 
 				System.out.println(formattedString);
 			}
@@ -243,7 +251,6 @@ public class Sys {
 
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
 	private static void arrangeSchedule() throws IOException, ParseException {
 
 		Scanner ss = new Scanner(new File("src/vehicle.csv"));
@@ -261,6 +268,7 @@ public class Sys {
 			String client = in.next();
 			System.out.println("Enter Start Date: (DD/MM/YYYY)");
 			String start = in.next();
+
 			System.out.println("Enter End Date: (DD/MM/YYYY)");
 			String end = in.next();
 			System.out.println("Enter Vehicle Reg:");
@@ -271,7 +279,6 @@ public class Sys {
 			List<List<String>> rows = Arrays.asList(Arrays.asList(client, start, end, vehicleReg, driverID));
 
 			for (Driver driver : drivers) {
-				// System.out.println(user.getpassword());
 				if ((driver.getdriverID().equals(driverID))) {
 					System.out.println("Driver Found");
 
@@ -284,7 +291,6 @@ public class Sys {
 			}
 
 			for (Vehicle vehicle : vehicles) {
-				// System.out.println(user.getpassword());
 				if ((vehicle.getregNo().equals(vehicleReg))) {
 					System.out.println("Vehicle Found");
 
@@ -321,14 +327,63 @@ public class Sys {
 
 			managerMenu();
 		}
+	}
 
+	private LocalDateTime createDate(String date) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+		return LocalDateTime.parse(date, formatter);
+
+	}
+
+	private boolean checkDate(String start, String end) {
+		String dateFormat = "[0-3][0-9]/[0-1][0-9]/20[0-9][0-9] [0-2][0-9]:[0-6][0-9]";
+
+		if (start.matches(dateFormat) && (end.matches(dateFormat))) {
+			LocalDateTime currentDate = LocalDateTime.now();
+			LocalDateTime compDate = createDate(start);
+			if (compDate.isAfter(currentDate)) {
+				return true;
+			} else {
+				System.out.println("Invalid date entered, please try again.");
+			}
+			return false;
+		}
+		return false;
+	}
+
+	private void isAvailable(String client, String startDate, String endDate, String vehicleReg, String driverID)
+			throws IOException {
+		Scanner su = new Scanner(new File("src/schedule.csv"));
+		su.useDelimiter(",");
+		while (su.hasNextLine()) {
+			String s = su.nextLine();
+			String[] split = s.split(",");
+			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4]);
+			workschedules.add(y);
+
+		}
+
+		su.close();
+
+		for (WorkSchedule workschedule : workschedules) {
+			if ((workschedule.getDriverID().contains(startDate)) && (workschedule.getDriverID().contains(endDate))) {
+
+				System.out.println("Driver is available on these dates");
+
+				break;
+			} else {
+				System.out.println("This Driver isn't available on these dates.");
+				arrangeSchedule();
+				break;
+			}
+		}
 	}
 
 	private static void moveVehicle() throws IOException, ParseException {
 		FileWriter csvWriter = new FileWriter("src/vehicle.csv", true);
 		Calendar cal = Calendar.getInstance();
 		Scanner in = new Scanner(System.in);
-		
+
 		Scanner scannerMove = new Scanner(new File("src/vehicle.csv"));
 		scannerMove.useDelimiter(",");
 		while (scannerMove.hasNextLine()) {
@@ -356,8 +411,8 @@ public class Sys {
 					System.out.println("--Date in Future--");
 
 					// error messages
-					//System.out.println("Vehicle is in active state");
-					//System.out.println("Vehicle is in pending state");
+					// System.out.println("Vehicle is in active state");
+					// System.out.println("Vehicle is in pending state");
 
 					System.out.println("Specify depot you wish to move vehicle to:");
 					String newDepot = in.next();
@@ -366,10 +421,11 @@ public class Sys {
 							+ " from depot: " + vehicle.getDepot() + " to depot: " + newDepot);
 					System.out.println("Is this correct Y/N");
 					String choice = in.next();
-					
+
 					if (choice.equalsIgnoreCase("Y")) {
-						
-						List<List<String>> rows = Arrays.asList(Arrays.asList(vehicle.getMake(), vehicle.getModel(), vehicle.getWeight(), registrationValue, newDepot));
+
+						List<List<String>> rows = Arrays.asList(Arrays.asList(vehicle.getMake(), vehicle.getModel(),
+								vehicle.getWeight(), registrationValue, newDepot));
 
 						for (List<String> rowData : rows) {
 							csvWriter.append(String.join(",", rowData));
@@ -381,8 +437,7 @@ public class Sys {
 						csvWriter.close();
 
 						System.out.println("---Vehicle Move Succesful---");
-						
-						
+
 					} else if (choice.equalsIgnoreCase("N")) {
 						System.out.println("---Vehicle Move Cancelled---");
 					}
