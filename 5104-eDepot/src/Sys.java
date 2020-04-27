@@ -253,24 +253,20 @@ public class Sys {
 	}
 
 	private static void arrangeSchedule() throws IOException, ParseException {
+		// BufferedReader reader = new BufferedReader(new
+		// FileReader("src/schedule.csv"));
 
 		Scanner in = new Scanner(System.in);
-		FileWriter csvWriter = new FileWriter("src/schedule.csv");
-
 		Scanner ss = new Scanner(new File("src/vehicle.csv"));
 		ss.useDelimiter(",");
 
 		System.out.println("Enter Client Name:");
 		String client = in.next();
-
 		System.out.println("Enter Vehicle Reg:");
 		String vehicleReg = in.next();
-
 		System.out.println("Enter Driver ID:");
 		String driverID = in.next();
-
 		Date start = new Date();
-
 		System.out.println("Specify Start Date:");
 		String startDate = in.next();
 
@@ -318,14 +314,32 @@ public class Sys {
 				String choice = in.next();
 				if (choice.equalsIgnoreCase("Y")) {
 
-					List<List<String>> rows = Arrays.asList(
-							Arrays.asList(client, startDate, endDate, startTime, endTime, vehicleReg, driverID));
+					List<WorkSchedule> schedules = new ArrayList<WorkSchedule>();
+					try {
+						Scanner fileReader = new Scanner(new FileReader("src/schedule.csv"));
+						while (fileReader.hasNextLine()) {
+							String line = fileReader.nextLine();
+							String[] splitLine = line.split(",");
+							schedules.add(new WorkSchedule(splitLine[0], splitLine[1], splitLine[2], splitLine[3],
+									splitLine[4], splitLine[5], splitLine[6]));
+						}
+						fileReader.close();
 
-					for (List<String> rowData : rows) {
-						csvWriter.append(String.join(",", rowData));
-						csvWriter.append("\n");
+						schedules.add(
+								new WorkSchedule(client, startDate, endDate, startTime, endTime, vehicleReg, driverID));
+
+					} catch (Exception e) {
+						System.out.println(e);
 					}
+					System.out.println(schedules.size());
+					FileWriter csvWriter = new FileWriter("src/schedule.csv");
 
+					for (WorkSchedule ws : schedules) {
+						csvWriter.append(ws.getClient() + "," + ws.getStartDate() + "," + ws.getEndDate() + ","
+								+ ws.getStartTime() + "," + ws.getEndTime() + "," + ws.getVehicleReg() + ","
+								+ ws.getDriverID() + "\n");
+
+					}
 					csvWriter.close();
 
 					System.out.println("-- Schedule Added Successfully --");
