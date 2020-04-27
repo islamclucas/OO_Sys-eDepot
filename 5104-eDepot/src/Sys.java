@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,7 +96,7 @@ public class Sys {
 		}
 	}
 
-//the menu the driver sees
+	// the menu the driver sees
 	private static void driverMenu() throws IOException {
 		while (menuLoop) {
 			String choice = "";
@@ -126,7 +127,7 @@ public class Sys {
 		}
 	}
 
-//else
+	// else
 	// the menu the manager sees
 	private static void managerMenu() throws IOException, ParseException {
 		String choice = "";
@@ -209,7 +210,7 @@ public class Sys {
 		reader.close();
 	}
 
-//THE SCHEDULE DRIVERS SEE OF ONLY THEIR JOBS
+	// THE SCHEDULE DRIVERS SEE OF ONLY THEIR JOBS
 	private static void personalSchedule() throws IOException {
 
 		BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
@@ -253,79 +254,92 @@ public class Sys {
 
 	private static void arrangeSchedule() throws IOException, ParseException {
 
+		Scanner in = new Scanner(System.in);
+		FileWriter csvWriter = new FileWriter("src/schedule.csv");
+
 		Scanner ss = new Scanner(new File("src/vehicle.csv"));
 		ss.useDelimiter(",");
-		while (ss.hasNextLine()) {
-			String s = ss.nextLine();
-			String[] split = s.split(",");
-			Vehicle x = new Vehicle(split[0], split[1], split[2], split[3], "depot");
-			vehicles.add(x);
 
-			FileWriter csvWriter = new FileWriter("src/schedule.csv", true);
-			Scanner in = new Scanner(System.in);
+		System.out.println("Enter Client Name:");
+		String client = in.next();
 
-			System.out.println("Enter Client Name:");
-			String client = in.next();
-			System.out.println("Enter Start Date: (DD/MM/YYYY)");
-			String start = in.next();
+		System.out.println("Enter Vehicle Reg:");
+		String vehicleReg = in.next();
 
-			System.out.println("Enter End Date: (DD/MM/YYYY)");
-			String end = in.next();
-			System.out.println("Enter Vehicle Reg:");
-			String vehicleReg = in.next();
-			System.out.println("Enter Driver ID:");
-			String driverID = in.next();
+		System.out.println("Enter Driver ID:");
+		String driverID = in.next();
 
-			List<List<String>> rows = Arrays.asList(Arrays.asList(client, start, end, vehicleReg, driverID));
+		Date start = new Date();
 
-			for (Driver driver : drivers) {
-				if ((driver.getdriverID().equals(driverID))) {
-					System.out.println("Driver Found");
+		System.out.println("Specify Start Date:");
+		String startDate = in.next();
 
-					break;
-				} else {
-					System.out.println("Driver Not Found");
+		DateTimeFormatter sdf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DATE, 2);
+		start = c.getTime();
+
+		if (new SimpleDateFormat("dd/MM/yyyy").parse(startDate).after(start)) {
+			System.out.println("-- Valid Start Date --");
+
+			Date end = new Date();
+
+			System.out.println("Specify End Date:");
+			String endDate = in.next();
+
+			Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
+
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(date1);
+			cal.add(Calendar.DATE, 3);
+
+			Date endDate72 = c.getTime();
+
+			// endDate + 72 hours
+
+			Date dateEnd = new Date();
+
+			if (new SimpleDateFormat("dd/MM/yyyy").parse(endDate).before(endDate72)) {
+				System.out.println("-- End Date Must Be 72 Hours Before Start Date --");
+				arrangeSchedule();
+			} else {
+				System.out.println("* VALID END *");
+
+				System.out.println("Specify Start Time For Entered Start Date(HH:mm:ss):");
+				String startTime = in.next();
+				LocalTime lt = LocalTime.parse(startTime);
+
+				System.out.println("Specify End Time For Entered End Date(HH:mm:ss):");
+				String endTime = in.next();
+				LocalTime lt2 = LocalTime.parse(endTime);
+
+				System.out.println("Start time: " + startTime);
+				System.out.println("End time: " + endTime + "\nIs this correct? (Y/N)");
+				String choice = in.next();
+				if (choice.equalsIgnoreCase("Y")) {
+
+					List<List<String>> rows = Arrays.asList(
+							Arrays.asList(client, startDate, endDate, startTime, endTime, vehicleReg, driverID));
+
+					for (List<String> rowData : rows) {
+						csvWriter.append(String.join(",", rowData));
+						csvWriter.append("\n");
+					}
+
+					csvWriter.close();
+
+					System.out.println("-- Schedule Added Successfully --");
+
+				} else if (choice.equalsIgnoreCase("N")) {
+					System.out.println("-- Schedule Cancelled --");
 					arrangeSchedule();
-					break;
 				}
+
 			}
 
-			for (Vehicle vehicle : vehicles) {
-				if ((vehicle.getregNo().equals(vehicleReg))) {
-					System.out.println("Vehicle Found");
-
-					break;
-				} else {
-					System.out.println("Vehicle Not Found");
-					arrangeSchedule();
-					break;
-				}
-			}
-
-			for (List<String> rowData : rows) {
-				csvWriter.append(String.join(",", rowData));
-				csvWriter.append("\n");
-			}
-
-			System.out.println("--Confirm new schedule details--");
-			System.out.println("Client Name: " + client);
-			System.out.println("Start Date: " + start);
-			System.out.println("End Date: " + end);
-			System.out.println("Vehicle ID: " + vehicleReg);
-			System.out.println("Driver ID: " + driverID);
-			System.out.println("Is this correct Y/N");
-			String choice = in.next();
-
-			if (choice.equalsIgnoreCase("Y")) {
-
-				System.out.println("---Complete---");
-				csvWriter.flush();
-				csvWriter.close();
-			} else if (choice.equalsIgnoreCase("N")) {
-				System.out.println("--Schedule Cancelled--");
-			}
-
-			managerMenu();
+		} else {
+			System.out.println("-- Start Date Must Be 48 Hours From Today --");
+			arrangeSchedule();
 		}
 	}
 
@@ -352,7 +366,7 @@ public class Sys {
 	}
 
 	private void isAvailable(String client, String startDate, String endDate, String vehicleReg, String driverID)
-			throws IOException {
+			throws IOException, ParseException {
 		Scanner su = new Scanner(new File("src/schedule.csv"));
 		su.useDelimiter(",");
 		while (su.hasNextLine()) {
