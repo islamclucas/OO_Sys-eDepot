@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -32,6 +33,7 @@ public class Sys {
 	private static boolean menuLoop = true;
 	private static Scanner userInput = new Scanner(System.in);
 	public static String curUser = " ";
+	public static String availRegs = " ";
 
 	public static void main(String[] args) throws IOException, ParseException {
 		boolean running = true;
@@ -116,8 +118,7 @@ public class Sys {
 				loggedIn = false;
 				loggedInUser = null;
 				System.out.println("Goodbye " + curUser + ".\nYou are now logged out.");
-				curUser = null;
-
+				curUser = " ";
 				break;
 			}
 			default:
@@ -168,7 +169,8 @@ public class Sys {
 			loggedIn = false;
 			loggedInUser = null;
 			System.out.println("Goodbye " + curUser + ".\nYou are now logged out.");
-			curUser = null;
+			curUser = " ";
+			loginMenu();
 			break;
 		}
 		default:
@@ -262,8 +264,17 @@ public class Sys {
 
 		System.out.println("Enter Client Name:");
 		String client = in.next();
+		regAvailable();
 		System.out.println("Enter Vehicle Reg:");
 		String vehicleReg = in.next();
+
+		if (vehicleReg.contains(availRegs)) { /////////////////////this doesnt do anything atm
+			System.out.println("Valid reg.");
+		}else if(!vehicleReg.contains(availRegs)) {
+			System.out.println("not a valid reg no");////////////////to here
+		}
+
+		driversAvailable();
 		System.out.println("Enter Driver ID:");
 		String driverID = in.next();
 		Date start = new Date();
@@ -320,27 +331,30 @@ public class Sys {
 						while (fileReader.hasNextLine()) {
 							String line = fileReader.nextLine();
 							String[] splitLine = line.split(",");
-							schedules.add(new WorkSchedule(splitLine[0], splitLine[1], splitLine[2], splitLine[3],
-									splitLine[4], splitLine[5], splitLine[6]));
+							// schedules.add(new WorkSchedule(splitLine[0], splitLine[1], splitLine[2],
+							// splitLine[3],
+							// splitLine[4], splitLine[5], splitLine[6]));
+
+							schedules.add(new WorkSchedule(client, startDate, endDate, startTime, endTime, vehicleReg,
+									driverID));
+
+							break;
 						}
 						fileReader.close();
-
-						schedules.add(
-								new WorkSchedule(client, startDate, endDate, startTime, endTime, vehicleReg, driverID));
 
 					} catch (Exception e) {
 						System.out.println(e);
 					}
 					System.out.println(schedules.size());
-					FileWriter csvWriter = new FileWriter("src/schedule.csv");
+					FileWriter csvWriter = new FileWriter("src/schedule.csv", true);
 
 					for (WorkSchedule ws : schedules) {
 						csvWriter.append(ws.getClient() + "," + ws.getStartDate() + "," + ws.getEndDate() + ","
 								+ ws.getStartTime() + "," + ws.getEndTime() + "," + ws.getVehicleReg() + ","
 								+ ws.getDriverID() + "\n");
 
+						csvWriter.close();
 					}
-					csvWriter.close();
 
 					System.out.println("-- Schedule Added Successfully --");
 
@@ -354,6 +368,111 @@ public class Sys {
 		} else {
 			System.out.println("-- Start Date Must Be 48 Hours From Today --");
 			arrangeSchedule();
+		}
+	}
+
+	private static void driversAvailable() throws IOException {
+
+		BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
+		List<String> lines = new ArrayList<>();
+		String line = "";
+
+		while ((line = reader.readLine()) != null) {
+			String[] DriverID = line.trim().split(",");
+			for (int w = 0; w < line.length(); w++) {
+				if (!lines.contains(DriverID[6])) {
+					lines.add(DriverID[6]);
+				}
+				w++;
+			}
+		}
+
+		BufferedReader UserReader = new BufferedReader(new FileReader("src/users.csv"));
+		List<String> Userlines = new ArrayList<>();
+		List<String> UserDetails = new ArrayList<String>();
+		String Uline = "";
+		while ((Uline = UserReader.readLine()) != null) {
+			String[] UserDriverID = Uline.trim().split(",");
+
+			for (int e = 0; e < Uline.length(); e++) {
+				if (!Userlines.contains(UserDriverID[2])) {
+					Userlines.add(UserDriverID[2]);
+					UserDetails.add(UserDriverID[e]);/// ??dont think need
+
+				}
+				e++;
+			}
+		}
+		Collections.sort(lines);
+		Collections.sort(Userlines);
+		Userlines.removeAll(lines);
+
+//System.out.println(UserDetails);
+
+		int userSize = UserDetails.size();// need??
+		int size = Userlines.size();
+		for (int r = 0; r < size; r++) {
+
+			String curID = Userlines.get(r);
+			String drivername = (UserDetails.get(r));
+			System.out.println("Driver " + drivername + "  ID : " + curID);
+
+			reader.close();
+			UserReader.close();
+		}
+	}
+
+	private static void regAvailable() throws IOException {
+
+		BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
+		List<String> lines = new ArrayList<>();
+		String line = "";
+
+		while ((line = reader.readLine()) != null) {
+			String[] reg = line.trim().split(",");
+			for (int w = 0; w < line.length(); w++) {
+				if (!lines.contains(reg[5])) {
+					lines.add(reg[5]);
+				}
+				w++;
+			}
+		}
+
+		BufferedReader UserReader = new BufferedReader(new FileReader("src/vehicle.csv"));
+		List<String> Userlines = new ArrayList<>();
+		List<String> UserDetails = new ArrayList<String>();
+		String Uline = "";
+		while ((Uline = UserReader.readLine()) != null) {
+			String[] UserDriverID = Uline.trim().split(",");
+
+			for (int e = 0; e < Uline.length(); e++) {
+				if (!Userlines.contains(UserDriverID[3])) {
+					Userlines.add(UserDriverID[3]);
+					UserDetails.add(UserDriverID[e]);/// ??dont think need
+
+				}
+				e++;
+			}
+		}
+		Collections.sort(lines);
+		Collections.sort(Userlines);
+		Userlines.removeAll(lines);
+
+		int size = Userlines.size();
+		if (size != 0) {
+			for (int r = 0; r < size; r++) {
+
+				String Reg = (Userlines.get(r));
+				availRegs = availRegs + "\n" + Reg;
+				reader.close();
+				UserReader.close();
+
+			}
+
+			System.out.println("Registrations available:");
+			System.out.println(availRegs);
+		} else if (size == 0) {
+			System.out.println("No available vehicles.");
 		}
 	}
 
@@ -386,9 +505,8 @@ public class Sys {
 		while (su.hasNextLine()) {
 			String s = su.nextLine();
 			String[] split = s.split(",");
-			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4]);
+			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6]);
 			workschedules.add(y);
-
 		}
 
 		su.close();
