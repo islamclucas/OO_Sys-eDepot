@@ -78,9 +78,9 @@ public class Sys {
 		System.out.println("-- DEPOT SYSTEM--");
 		System.out.println(" --LOGIN--");
 		System.out.println("Enter Username:");
-		username = userInput.nextLine();
+		username = userInput.next();
 		System.out.println("Enter Password:");
-		password = userInput.nextLine();
+		password = userInput.next();
 
 		for (User user : users) {
 			// System.out.println(user.getpassword());
@@ -100,6 +100,7 @@ public class Sys {
 
 	// the menu the driver sees
 	private static void driverMenu() throws IOException {
+		menuLoop = true;
 		while (menuLoop) {
 			String choice = "";
 			System.out.println("-- DEPOT SYSTEM--");
@@ -165,12 +166,10 @@ public class Sys {
 			break;
 		}
 		case "Q": {
-			menuLoop = false;
 			loggedIn = false;
 			loggedInUser = null;
 			System.out.println("Goodbye " + curUser + ".\nYou are now logged out.");
 			curUser = " ";
-			loginMenu();
 			break;
 		}
 		default:
@@ -558,8 +557,37 @@ public class Sys {
 		}
 	}
 
+	private static boolean isVehicleAvailable(String vehicleReg, String startDatein, String endDatein)
+			throws IOException, ParseException {
+
+		Date startDate = new SimpleDateFormat("dd/MM/yyyy").parse(startDatein);
+		Date endDate = new SimpleDateFormat("dd/MM/yyyy").parse(endDatein);
+
+		Scanner su = new Scanner(new File("src/schedule.csv"));
+		su.useDelimiter(",");
+		while (su.hasNextLine()) {
+			String s = su.nextLine();
+			String[] split = s.split(",");
+			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6]);
+			workschedules.add(y);
+		}
+
+		su.close();
+
+		for (WorkSchedule workschedule : workschedules) {
+
+			if (workschedule.getVehicleReg().equalsIgnoreCase(vehicleReg)) {
+				if ((workschedule.getStartDate().after(startDate) && (workschedule.getStartDate().before(endDate)))
+						|| ((workschedule.getEndDate().after(startDate)
+								&& (workschedule.getEndDate().before(endDate))))) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	private static void moveVehicle() throws IOException, ParseException {
-		FileWriter csvWriter = new FileWriter("src/vehicle.csv", true);
 		Calendar cal = Calendar.getInstance();
 		Scanner in = new Scanner(System.in);
 
@@ -575,24 +603,31 @@ public class Sys {
 
 		System.out.println("--Move Vehicle--");
 		System.out.println("Specify Vehicle Registration:");
-		String registrationValue = in.next();
+		String registrationValue = in.nextLine();
 
-		for (Vehicle vehicle : vehicles) {
+		boolean value = false;
 
-			if ((vehicle.getregNo().equals(registrationValue))) {
-				System.out.println("--Vehicle Found--");
-				System.out.println(vehicle.getMake());
+		Vehicle vehicle = null;
+		for (Vehicle v : vehicles) {
+			if ((v.getregNo().equals(registrationValue))) {
+				value = true;
+				vehicle = v;
+			}
+		}
+		if (value == true) {
+			System.out.println("--Vehicle Found--");
+			System.out.println(vehicle.getMake());
 
-				System.out.println("Specify move date:");
-				String moveDate = in.next();
+			System.out.println("Specify move date:");
+			String moveDate = in.next();
 
-				if (new SimpleDateFormat("dd/MM/yyyy").parse(moveDate).after(new Date())) {
-					System.out.println("--Date in Future--");
+			if (new SimpleDateFormat("dd/MM/yyyy").parse(moveDate).after(new Date())) {
+				System.out.println("--Date in Future--");
 
-					// error messages
-					// System.out.println("Vehicle is in active state");
-					// System.out.println("Vehicle is in pending state");
-
+				// error messages
+				// System.out.println("Vehicle is in active state");
+				// System.out.println("Vehicle is in pending state");
+				if (isVehicleAvailable(registrationValue, moveDate, "01/01/3000")) {
 					System.out.println("Specify depot you wish to move vehicle to:");
 					String newDepot = in.next();
 
@@ -603,12 +638,34 @@ public class Sys {
 
 					if (choice.equalsIgnoreCase("Y")) {
 
-						List<List<String>> rows = Arrays.asList(Arrays.asList(vehicle.getMake(), vehicle.getModel(),
-								vehicle.getWeight(), registrationValue, newDepot));
+						List<Vehicle> vehicles = new ArrayList<Vehicle>();
+						try {
+							Scanner fileReader = new Scanner(new FileReader("src/vehicle.csv"));
+							while (fileReader.hasNextLine()) {
+								String line = fileReader.nextLine();
+								String[] splitLine = line.split(",");
 
-						for (List<String> rowData : rows) {
-							csvWriter.append(String.join(",", rowData));
-							csvWriter.append(",");
+								if (line.contains(registrationValue)) {
+									vehicles.add(new Vehicle(splitLine[0], splitLine[1], splitLine[2], splitLine[3],
+											newDepot));
+
+								} else {
+									vehicles.add(new Vehicle(splitLine[0], splitLine[1], splitLine[2], splitLine[3],
+											splitLine[4]));
+
+								}
+
+							}
+							fileReader.close();
+
+						} catch (Exception e) {
+							System.out.println(e);
+						}
+						FileWriter csvWriter = new FileWriter("src/vehicle.csv");
+
+						for (Vehicle v : vehicles) {
+							csvWriter.append(v.getMake() + "," + v.getModel() + "," + v.getWeight() + "," + v.getregNo()
+									+ "," + v.getDepot());
 							csvWriter.append("\n");
 						}
 
@@ -621,22 +678,20 @@ public class Sys {
 						System.out.println("---Vehicle Move Cancelled---");
 					}
 
-					managerMenu();
-
-					break;
-
 				} else {
-					System.out.println("--Date Invalid--");
-					moveVehicle();
+					System.out.println("Vehicle not available");
 				}
 
-			} else {
-				System.out.println("--Invalid Vehicle Registration--");
-				moveVehicle();
-				break;
-			}
-		}
+				managerMenu();
 
+			} else {
+				System.out.println("--Date Invalid--");
+			}
+
+		} else {
+			System.out.println("--Invalid Vehicle Registration--");
+			moveVehicle();
+		}
 	}
 
 	private static void setupVehicle() throws IOException, ParseException {
@@ -799,3 +854,4 @@ public class Sys {
 		}
 	}
 }
+
