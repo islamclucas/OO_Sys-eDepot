@@ -258,6 +258,18 @@ public class Sys {
 		// FileReader("src/schedule.csv"));
 
 		Scanner in = new Scanner(System.in);
+		// Scanner sf = new Scanner(new File("src/vehicles.csv"));
+		// sf.useDelimiter(",");
+		// while (sf.hasNextLine()) {
+		// String s = sf.nextLine();
+		// String[] split = s.split(",");
+		// Vehicle c = new Vehicle(split[0], split[1], split[2], split[3], split[4],
+		// split[5]);
+		// vehicles.add(c);
+		// }
+		//
+		// sf.close();
+
 		Scanner ss = new Scanner(new File("src/schedule.csv"));
 		ss.useDelimiter(",");
 		while (ss.hasNextLine()) {
@@ -273,135 +285,142 @@ public class Sys {
 		String client = in.next();
 
 		for (WorkSchedule workschedules : workschedules) {
-			if (client.equals(workschedules.getClient())) {
-				System.out.println("-- Client Already Found --");
-				arrangeSchedule();
+			// if (client.equals(workschedules.getClient())) {
+			// System.out.println("-- Client Already Found --");
+			// arrangeSchedule();
+			// } else {
+			// System.out.println("-- Client Not Found --");
+
+			regAvailable();
+
+			System.out.println("List Vehicle Type (Truck or Tanker):");
+			String vehicleType = in.next();
+
+			if (vehicleType.equals("Truck")) {
+
+			}
+
+			System.out.println("Enter Vehicle Reg:");
+			String vehicleReg = in.next();
+
+			if (vehicleReg.equals(workschedules.getVehicleReg())) {
+				System.out.println("-- Vehicle Exists --");
 			} else {
-				System.out.println("-- Client Not Found --");
+				System.out.println("-- Vehicle Does Not Exist --");
 
-				// regAvailable();
+				driversAvailable();
+				System.out.println("Enter Driver ID:");
+				String driverID = in.next();
 
-				System.out.println("Enter Vehicle Reg:");
-				String vehicleReg = in.next();
-
-				if (vehicleReg.equals(workschedules.getVehicleReg())) {
-					System.out.println("-- Vehicle Exists --");
+				if (driverID.equals(workschedules.getDriverID())) {
+					System.out.println("-- DriverID In Use --");
+					arrangeSchedule();
 				} else {
-					System.out.println("-- Vehicle Does Not Exist --");
+					System.out.println("-- DriverID Is Free To Use --");
 
-					// driversAvailable();
-					System.out.println("Enter Driver ID:");
-					String driverID = in.next();
+					Date start = new Date();
+					System.out.println("Specify Start Date:");
+					String startDate = in.next();
 
-					if (driverID.equals(workschedules.getDriverID())) {
-						System.out.println("-- DriverID In Use --");
-						arrangeSchedule();
-					} else {
-						System.out.println("-- DriverID Is Free To Use --");
+					DateTimeFormatter sdf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+					Calendar c = Calendar.getInstance();
+					c.add(Calendar.DATE, 2);
+					start = c.getTime();
 
-						Date start = new Date();
-						System.out.println("Specify Start Date:");
-						String startDate = in.next();
+					if (new SimpleDateFormat("dd/MM/yyyy").parse(startDate).after(start)) {
+						System.out.println("-- Valid Start Date --");
 
-						DateTimeFormatter sdf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-						Calendar c = Calendar.getInstance();
-						c.add(Calendar.DATE, 2);
-						start = c.getTime();
+						Date end = new Date();
 
-						if (new SimpleDateFormat("dd/MM/yyyy").parse(startDate).after(start)) {
-							System.out.println("-- Valid Start Date --");
+						System.out.println("Specify End Date:");
+						String endDate = in.next();
 
-							Date end = new Date();
+						Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
 
-							System.out.println("Specify End Date:");
-							String endDate = in.next();
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(date1);
+						cal.add(Calendar.DATE, 3);
 
-							Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
+						Date endDate72 = c.getTime();
 
-							Calendar cal = Calendar.getInstance();
-							cal.setTime(date1);
-							cal.add(Calendar.DATE, 3);
+						// endDate + 72 hours
 
-							Date endDate72 = c.getTime();
+						Date dateEnd = new Date();
 
-							// endDate + 72 hours
+						if (new SimpleDateFormat("dd/MM/yyyy").parse(endDate).before(endDate72)) {
+							System.out.println("-- End Date Must Be 72 Hours Before Start Date --");
+							arrangeSchedule();
+						} else {
+							System.out.println("* VALID END *");
 
-							Date dateEnd = new Date();
+							System.out.println("Specify Start Time For Entered Start Date(HH:mm:ss):");
+							String startTime = in.next();
+							LocalTime lt = LocalTime.parse(startTime);
 
-							if (new SimpleDateFormat("dd/MM/yyyy").parse(endDate).before(endDate72)) {
-								System.out.println("-- End Date Must Be 72 Hours Before Start Date --");
-								arrangeSchedule();
-							} else {
-								System.out.println("* VALID END *");
+							System.out.println("Specify End Time For Entered End Date(HH:mm:ss):");
+							String endTime = in.next();
+							LocalTime lt2 = LocalTime.parse(endTime);
 
-								System.out.println("Specify Start Time For Entered Start Date(HH:mm:ss):");
-								String startTime = in.next();
-								LocalTime lt = LocalTime.parse(startTime);
+							System.out.println("Start Date: " + startDate);
+							System.out.println("End Date: " + endDate);
+							System.out.println("Start time: " + startTime);
+							System.out.println("End time: " + endTime + "\nIs this correct? (Y/N)");
+							String choice = in.next();
+							if (choice.equalsIgnoreCase("Y")) {
 
-								System.out.println("Specify End Time For Entered End Date(HH:mm:ss):");
-								String endTime = in.next();
-								LocalTime lt2 = LocalTime.parse(endTime);
+								List<WorkSchedule> schedules = new ArrayList<WorkSchedule>();
+								try {
+									Scanner fileReader = new Scanner(new FileReader("src/schedule.csv"));
+									while (fileReader.hasNextLine()) {
+										String line = fileReader.nextLine();
+										String[] splitLine = line.split(",");
 
-								System.out.println("Start Date: " + startDate);
-								System.out.println("End Date: " + endDate);
-								System.out.println("Start time: " + startTime);
-								System.out.println("End time: " + endTime + "\nIs this correct? (Y/N)");
-								String choice = in.next();
-								if (choice.equalsIgnoreCase("Y")) {
+										schedules.add(new WorkSchedule(client, startDate, endDate, startTime, endTime,
+												vehicleReg, driverID));
 
-									List<WorkSchedule> schedules = new ArrayList<WorkSchedule>();
-									try {
-										Scanner fileReader = new Scanner(new FileReader("src/schedule.csv"));
-										while (fileReader.hasNextLine()) {
-											String line = fileReader.nextLine();
-											String[] splitLine = line.split(",");
-
-											schedules.add(new WorkSchedule(client, startDate, endDate, startTime,
-													endTime, vehicleReg, driverID));
-
-											break;
-										}
-										fileReader.close();
-
-									} catch (Exception e) {
-										System.out.println(e);
+										break;
 									}
-									System.out.println(schedules.size());
-									FileWriter csvWriter = new FileWriter("src/schedule.csv", true);
+									fileReader.close();
 
-									List<List<String>> rows = Arrays.asList(Arrays.asList(client, startDate, endDate,
-											startTime, endTime, vehicleReg, driverID));
+								} catch (Exception e) {
+									System.out.println(e);
+								}
+								System.out.println(schedules.size());
+								FileWriter csvWriter = new FileWriter("src/schedule.csv", true);
 
-									for (List<String> rowData : rows) {
-										csvWriter.append(String.join(",", rowData));
-										csvWriter.append(",");
-										csvWriter.append("\n");
-									}
+								List<List<String>> rows = Arrays.asList(Arrays.asList(client, startDate, endDate,
+										startTime, endTime, vehicleReg, driverID));
 
-									csvWriter.flush();
-									csvWriter.close();
-
-									System.out.println("-- Schedule Added Successfully --");
-
-								} else if (choice.equalsIgnoreCase("N")) {
-									System.out.println("-- Schedule Cancelled --");
-									arrangeSchedule();
+								for (List<String> rowData : rows) {
+									csvWriter.append(String.join(",", rowData));
+									csvWriter.append(",");
+									csvWriter.append("\n");
 								}
 
+								csvWriter.flush();
+								csvWriter.close();
+
+								System.out.println("-- Schedule Added Successfully --");
+
+							} else if (choice.equalsIgnoreCase("N")) {
+								System.out.println("-- Schedule Cancelled --");
+								arrangeSchedule();
 							}
 
-						} else {
-							System.out.println("-- Start Date Must Be 48 Hours From Today --");
-							arrangeSchedule();
 						}
-					}
 
+					} else {
+						System.out.println("-- Start Date Must Be 48 Hours From Today --");
+						arrangeSchedule();
+					}
 				}
 
 			}
-		}
 
+		}
 	}
+
+	// }
 
 	private static void driversAvailable() throws IOException {
 
@@ -596,7 +615,7 @@ public class Sys {
 		while (scannerMove.hasNextLine()) {
 			String s = scannerMove.nextLine();
 			String[] split = s.split(",");
-			Vehicle y = new Vehicle(split[0], split[1], split[2], split[3], split[4]);
+			Vehicle y = new Vehicle(split[0], split[1], split[2], split[3], split[4], split[5]);
 			vehicles.add(y);
 
 		}
@@ -647,11 +666,11 @@ public class Sys {
 
 								if (line.contains(registrationValue)) {
 									vehicles.add(new Vehicle(splitLine[0], splitLine[1], splitLine[2], splitLine[3],
-											newDepot));
+											splitLine[4], newDepot));
 
 								} else {
 									vehicles.add(new Vehicle(splitLine[0], splitLine[1], splitLine[2], splitLine[3],
-											splitLine[4]));
+											splitLine[4], splitLine[5]));
 
 								}
 
@@ -701,7 +720,7 @@ public class Sys {
 		while (scannerVehicle.hasNextLine()) {
 			String s = scannerVehicle.nextLine();
 			String[] split = s.split(",");
-			Vehicle x = new Vehicle(split[0], split[1], split[2], split[3], split[4]);
+			Vehicle x = new Vehicle(split[0], split[1], split[2], split[3], split[4], split[5]);
 			vehicles.add(x);
 
 		}
@@ -722,7 +741,7 @@ public class Sys {
 
 		System.out.println("Enter Vehicle Registration:");
 		String registration = in.next();
-
+		
 		boolean value = false;
 
 		Vehicle vehicle = null;
@@ -738,10 +757,13 @@ public class Sys {
 		if (value == true) {
 			System.out.println("-- Vehicle Already in System --");
 			setupVehicle();
-			
+
 		} else {
 			System.out.println("-- Vehicle Not In System --");
 			
+			System.out.println("Enter Vehicle Type (Truck or Tanker):");
+			String vehicleType = in.next();
+
 			System.out.println("Enter Vehicle Depot:");
 			String depot = in.next();
 
@@ -750,13 +772,14 @@ public class Sys {
 			System.out.println("Vehicle Model: " + model);
 			System.out.println("Vehicle Capacity: " + capacity);
 			System.out.println("Vehicle Registration: " + registration);
+			System.out.println("Vehicle Type: " + vehicleType);
 			System.out.println("Vehicle Depot: " + depot);
 			System.out.println("Is this correct Y/N");
 			String choice = in.next();
 
 			if (choice.equalsIgnoreCase("Y")) {
 
-				List<List<String>> rows = Arrays.asList(Arrays.asList(make, model, capacity, registration, depot));
+				List<List<String>> rows = Arrays.asList(Arrays.asList(make, model, capacity, registration, vehicleType, depot));
 
 				for (List<String> rowData : rows) {
 					csvWriter.append(String.join(",", rowData));
@@ -773,8 +796,6 @@ public class Sys {
 			managerMenu();
 		}
 	}
-
-	
 
 	private static void setupDriver() throws IOException, ParseException {
 		Scanner scannerDriver = new Scanner(new File("src/users.csv"));
@@ -854,4 +875,3 @@ public class Sys {
 		}
 	}
 }
-

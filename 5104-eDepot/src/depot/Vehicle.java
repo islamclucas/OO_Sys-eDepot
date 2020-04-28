@@ -5,13 +5,15 @@ public class Vehicle {
 	private String model;
 	private String weight;
 	private String regNo;
+	private String vehicleType;
 	private String depot;
 	
-	public Vehicle(String make, String model, String weight, String regNo, String depot) {
+	public Vehicle(String make, String model, String weight, String regNo, String vehicleType, String depot) {
 		this.make = make;
 		this.model = model;
 		this.weight = weight;
 		this.regNo = regNo;
+		this.vehicleType = vehicleType;
 		this.depot = depot;
 
 	}
@@ -26,6 +28,9 @@ public class Vehicle {
 	}
 	public String getregNo() {
 		return this.regNo;
+	}
+	public String getvehicleType() {
+		return this.vehicleType;
 	}
 	public String getDepot() {
 		return this.depot;
