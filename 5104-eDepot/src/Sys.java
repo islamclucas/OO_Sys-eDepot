@@ -185,30 +185,35 @@ public class Sys {
 		BufferedReader reader = new BufferedReader(new FileReader("src/schedule.csv"));
 		List<String> lines = new ArrayList<>();
 		String line = null;
+		int noOutput = 0;
 		System.out.println("\n");
 		while ((line = reader.readLine()) != null) {
 			lines.add(line + "\n ");
 		}
-
 		int size = (lines.size());
+		if (size != 0) {
 
-		for (int x = 0; x < size; x++) {
-			if (x == 0) {
-				String output = lines.get(x);
-
-				String formattedString = output.toString().replace(",", "\t|\t");
-
-				System.out.println(formattedString
-						+ "\n________________________________________________________________________________________");
-			} else {
+			for (int x = 0; x < size; x++) {
 				String output = lines.get(x);
 
 				String formattedString = output.toString().replace(",", "\t|\t");
 
 				System.out.println(formattedString);
+				noOutput++;
+
 			}
+			if (noOutput == 0) {
+				System.out.println("NO JOBS");
+				reader.close();
+			}
+
+		}else
+		{
+			System.out.println("NO JOBS ");
+			reader.close();
+
 		}
-		reader.close();
+
 	}
 
 	// THE SCHEDULE DRIVERS SEE OF ONLY THEIR JOBS
@@ -222,16 +227,8 @@ public class Sys {
 			lines.add(line + "\n ");
 		}
 		int size = (lines.size());
-
-		for (int x = 0; x < size; x++) {// FIRST LINE
-			if (x == 0) {
-				String output = lines.get(x);
-
-				String formattedString = output.toString().replace(",", "\t|\t"); // remove the commas
-
-				System.out.println(formattedString
-						+ "\n________________________________________________________________________________________");
-			} else { // REST OF ARRAY
+		if (size != 0) {
+			for (int x = 0; x < size; x++) {
 				String output = lines.get(x);
 				{
 					if (output.contains(curUser)) {
@@ -242,16 +239,25 @@ public class Sys {
 					} else {
 						// do nowt
 					}
+					if (noOutput == 0) {
+						System.out.println("NO JOBS");
+						reader.close();
+					}
+
 				}
 			}
-		}
-		if (noOutput == 0) {
-			System.out.println("NO SCHEDULED JOBS");
+		} else {
+			System.out.println("NO JOBS ");
+			reader.close();
 
 		}
-		reader.close();
-
 	}
+
+	/*
+	 * if (noOutput == 0) { System.out.println("NO SCHEDULED JOBS");
+	 * 
+	 * }
+	 */
 
 	private static void arrangeSchedule() throws IOException, ParseException {
 		// BufferedReader reader = new BufferedReader(new
@@ -741,7 +747,7 @@ public class Sys {
 
 		System.out.println("Enter Vehicle Registration:");
 		String registration = in.next();
-		
+
 		boolean value = false;
 
 		Vehicle vehicle = null;
@@ -760,7 +766,7 @@ public class Sys {
 
 		} else {
 			System.out.println("-- Vehicle Not In System --");
-			
+
 			System.out.println("Enter Vehicle Type (Truck or Tanker):");
 			String vehicleType = in.next();
 
@@ -779,7 +785,8 @@ public class Sys {
 
 			if (choice.equalsIgnoreCase("Y")) {
 
-				List<List<String>> rows = Arrays.asList(Arrays.asList(make, model, capacity, registration, vehicleType, depot));
+				List<List<String>> rows = Arrays
+						.asList(Arrays.asList(make, model, capacity, registration, vehicleType, depot));
 
 				for (List<String> rowData : rows) {
 					csvWriter.append(String.join(",", rowData));
