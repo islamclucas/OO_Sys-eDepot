@@ -8,7 +8,7 @@ public class User {
 	
 		this.username = username;
 		this.password = password;
-		this.depot = driverID;
+		this.driverID = driverID;
 		this.role = role;
 		this.depot = depot;
 		

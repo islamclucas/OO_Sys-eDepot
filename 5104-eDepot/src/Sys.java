@@ -642,106 +642,150 @@ public class Sys {
 	private static void setupVehicle() throws IOException, ParseException {
 		Scanner scannerVehicle = new Scanner(new File("src/vehicle.csv"));
 		scannerVehicle.useDelimiter(",");
+
 		while (scannerVehicle.hasNextLine()) {
 			String s = scannerVehicle.nextLine();
 			String[] split = s.split(",");
-			Vehicle x = new Vehicle(split[0], split[1], split[2], split[3], "depot");
+			Vehicle x = new Vehicle(split[0], split[1], split[2], split[3], split[4]);
 			vehicles.add(x);
 
-			FileWriter csvWriter = new FileWriter("src/vehicle.csv", true);
-			Scanner in = new Scanner(System.in);
+		}
 
-			System.out.println("--Setup Vehicle--");
+		scannerVehicle.close();
+		
+		System.out.println(vehicles.toString());
 
-			System.out.println("Enter Vehicle Make:");
-			String make = in.next();
-			System.out.println("Enter Vehicle Model:");
-			String model = in.next();
-			System.out.println("Enter Vehicle Capacity:");
-			String capacity = in.next();
-			System.out.println("Enter Vehicle Registration:");
-			String registration = in.next();
-			System.out.println("Enter Vehicle Depot:");
-			String depot = in.next();
+		FileWriter csvWriter = new FileWriter("src/vehicle.csv", true);
+		Scanner in = new Scanner(System.in);
 
-			System.out.println("--Confirm new Vehicle details--");
-			System.out.println("Vehicle Make: " + make);
-			System.out.println("Vehicle Model: " + model);
-			System.out.println("Vehicle Capacity: " + capacity);
-			System.out.println("Vehicle Registration: " + registration);
-			System.out.println("Vehicle Depot: " + depot);
-			System.out.println("Is this correct Y/N");
-			String choice = in.next();
+		System.out.println("--Setup Vehicle--");
 
-			if (choice.equalsIgnoreCase("Y")) {
+		System.out.println("Enter Vehicle Make:");
+		String make = in.next();
+		System.out.println("Enter Vehicle Model:");
+		String model = in.next();
+		System.out.println("Enter Vehicle Capacity:");
+		String capacity = in.next();
 
-				List<List<String>> rows = Arrays.asList(Arrays.asList(make, model, capacity, registration, depot));
+		System.out.println("Enter Vehicle Registration:");
+		String registration = in.next();
 
-				for (List<String> rowData : rows) {
-					csvWriter.append(String.join(",", rowData));
-					csvWriter.append(",");
-					csvWriter.append("\n");
+		for (Vehicle vehicles : vehicles) {
+			if (registration.equals(vehicles.getregNo())) {
+				
+				System.out.println("-- Vehicle Registration Already in System --");
+				setupVehicle();
+			
+			} else {
+				System.out.println("Enter Vehicle Depot:");
+				String depot = in.next();
+
+				System.out.println("--Confirm new Vehicle details--");
+				System.out.println("Vehicle Make: " + make);
+				System.out.println("Vehicle Model: " + model);
+				System.out.println("Vehicle Capacity: " + capacity);
+				System.out.println("Vehicle Registration: " + registration);
+				System.out.println("Vehicle Depot: " + depot);
+				System.out.println("Is this correct Y/N");
+				String choice = in.next();
+
+				if (choice.equalsIgnoreCase("Y")) {
+
+					List<List<String>> rows = Arrays.asList(Arrays.asList(make, model, capacity, registration, depot));
+
+					for (List<String> rowData : rows) {
+						csvWriter.append(String.join(",", rowData));
+						csvWriter.append(",");
+						csvWriter.append("\n");
+					}
+
+					csvWriter.flush();
+					csvWriter.close();
+				} else if (choice.equalsIgnoreCase("N")) {
+					System.out.println("--Schedule Cancelled--");
 				}
 
-				csvWriter.flush();
-				csvWriter.close();
-			} else if (choice.equalsIgnoreCase("N")) {
-				System.out.println("--Schedule Cancelled--");
+				managerMenu();
 			}
-
-			managerMenu();
 		}
+
 	}
 
 	private static void setupDriver() throws IOException, ParseException {
 		Scanner scannerDriver = new Scanner(new File("src/users.csv"));
 		scannerDriver.useDelimiter(",");
+
 		while (scannerDriver.hasNextLine()) {
 			String s = scannerDriver.nextLine();
 			String[] split = s.split(",");
 			User x = new User(split[0], split[1], split[2], split[3], split[4]);
 			users.add(x);
+		}
 
-			FileWriter csvWriter = new FileWriter("src/users.csv", true);
-			Scanner in = new Scanner(System.in);
+		scannerDriver.close();
 
-			System.out.println("--Setup Driver--");
+		FileWriter csvWriter = new FileWriter("src/users.csv", true);
+		Scanner in = new Scanner(System.in);
 
-			System.out.println("Enter Username:");
-			String username = in.next();
-			System.out.println("Enter Password:");
-			String password = in.next();
-			String driver = "Driver";
-			System.out.println("Enter Driver ID:");
-			String ID = in.next();
-			System.out.println("Enter Vehicle Depot:");
-			String depot = in.next();
+		System.out.println("--Setup Driver--");
 
-			System.out.println("--Confirm new Driver details--");
-			System.out.println("Username: " + username);
-			System.out.println("Password: " + password);
-			System.out.println("Driver ID: " + ID);
-			System.out.println("Vehicle Depot: " + depot);
-			System.out.println("Is this correct Y/N");
-			String choice = in.next();
+		System.out.println("Enter Username:");
+		String username = in.next();
 
-			if (choice.equalsIgnoreCase("Y")) {
+		for (User users : users) {
+			if (username.equals(users.getUsername())) {
+				System.out.println("-- Username in use-- ");
+				setupDriver();
+			} else {
+				System.out.println("-- Username Free -- ");
 
-				List<List<String>> rows = Arrays.asList(Arrays.asList(username, password, driver, ID, depot));
+				System.out.println("Enter Password:");
+				String password = in.next();
 
-				for (List<String> rowData : rows) {
-					csvWriter.append(String.join(",", rowData));
-					csvWriter.append(",");
-					csvWriter.append("\n");
+				String driver = "Driver";
+
+				System.out.println("Enter Driver ID:");
+				String ID = in.next();
+
+				if (ID.equals(users.getdriverID())) {
+					System.out.println("-- ID in use-- ");
+					setupDriver();
+				} else {
+					System.out.println("-- ID Free -- ");
+
+					System.out.println("Enter Vehicle Depot:");
+					String depot = in.next();
+
+					System.out.println("--Confirm new Driver details--");
+					System.out.println("Username: " + username);
+					System.out.println("Password: " + password);
+					System.out.println("Driver ID: " + ID);
+					System.out.println("Vehicle Depot: " + depot);
+					System.out.println("Is this correct Y/N");
+					String choice = in.next();
+
+					if (choice.equalsIgnoreCase("Y")) {
+
+						List<List<String>> rows = Arrays.asList(Arrays.asList(username, password, driver, ID, depot));
+
+						for (List<String> rowData : rows) {
+							csvWriter.append(String.join(",", rowData));
+							csvWriter.append(",");
+							csvWriter.append("\n");
+						}
+
+						csvWriter.flush();
+						csvWriter.close();
+					} else if (choice.equalsIgnoreCase("N")) {
+						System.out.println("--Schedule Cancelled--");
+						break;
+					}
+
+					managerMenu();
 				}
 
-				csvWriter.flush();
-				csvWriter.close();
-			} else if (choice.equalsIgnoreCase("N")) {
-				System.out.println("--Schedule Cancelled--");
 			}
 
-			managerMenu();
 		}
 	}
 }
