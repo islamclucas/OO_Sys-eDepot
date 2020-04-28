@@ -259,116 +259,149 @@ public class Sys {
 		// FileReader("src/schedule.csv"));
 
 		Scanner in = new Scanner(System.in);
-		Scanner ss = new Scanner(new File("src/vehicle.csv"));
+		Scanner ss = new Scanner(new File("src/schedule.csv"));
 		ss.useDelimiter(",");
+		while (ss.hasNextLine()) {
+			String s = ss.nextLine();
+			String[] split = s.split(",");
+			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6]);
+			workschedules.add(y);
+		}
+
+		ss.close();
 
 		System.out.println("Enter Client Name:");
 		String client = in.next();
-		regAvailable();
-		System.out.println("Enter Vehicle Reg:");
-		String vehicleReg = in.next();
 
-		if (vehicleReg.contains(availRegs)) { /////////////////////this doesnt do anything atm
-			System.out.println("Valid reg.");
-		}else if(!vehicleReg.contains(availRegs)) {
-			System.out.println("not a valid reg no");////////////////to here
-		}
-
-		driversAvailable();
-		System.out.println("Enter Driver ID:");
-		String driverID = in.next();
-		Date start = new Date();
-		System.out.println("Specify Start Date:");
-		String startDate = in.next();
-
-		DateTimeFormatter sdf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.DATE, 2);
-		start = c.getTime();
-
-		if (new SimpleDateFormat("dd/MM/yyyy").parse(startDate).after(start)) {
-			System.out.println("-- Valid Start Date --");
-
-			Date end = new Date();
-
-			System.out.println("Specify End Date:");
-			String endDate = in.next();
-
-			Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
-
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(date1);
-			cal.add(Calendar.DATE, 3);
-
-			Date endDate72 = c.getTime();
-
-			// endDate + 72 hours
-
-			Date dateEnd = new Date();
-
-			if (new SimpleDateFormat("dd/MM/yyyy").parse(endDate).before(endDate72)) {
-				System.out.println("-- End Date Must Be 72 Hours Before Start Date --");
+		for (WorkSchedule workschedules : workschedules) {
+			if (client.equals(workschedules.getClient())) {
+				System.out.println("-- Client Already Found --");
 				arrangeSchedule();
 			} else {
-				System.out.println("* VALID END *");
+				System.out.println("-- Client Not Found --");
 
-				System.out.println("Specify Start Time For Entered Start Date(HH:mm:ss):");
-				String startTime = in.next();
-				LocalTime lt = LocalTime.parse(startTime);
+				// regAvailable();
 
-				System.out.println("Specify End Time For Entered End Date(HH:mm:ss):");
-				String endTime = in.next();
-				LocalTime lt2 = LocalTime.parse(endTime);
+				System.out.println("Enter Vehicle Reg:");
+				String vehicleReg = in.next();
 
-				System.out.println("Start time: " + startTime);
-				System.out.println("End time: " + endTime + "\nIs this correct? (Y/N)");
-				String choice = in.next();
-				if (choice.equalsIgnoreCase("Y")) {
+				if (vehicleReg.equals(workschedules.getVehicleReg())) {
+					System.out.println("-- Vehicle Exists --");
+				} else {
+					System.out.println("-- Vehicle Does Not Exist --");
 
-					List<WorkSchedule> schedules = new ArrayList<WorkSchedule>();
-					try {
-						Scanner fileReader = new Scanner(new FileReader("src/schedule.csv"));
-						while (fileReader.hasNextLine()) {
-							String line = fileReader.nextLine();
-							String[] splitLine = line.split(",");
-							// schedules.add(new WorkSchedule(splitLine[0], splitLine[1], splitLine[2],
-							// splitLine[3],
-							// splitLine[4], splitLine[5], splitLine[6]));
+					// driversAvailable();
+					System.out.println("Enter Driver ID:");
+					String driverID = in.next();
 
-							schedules.add(new WorkSchedule(client, startDate, endDate, startTime, endTime, vehicleReg,
-									driverID));
+					if (driverID.equals(workschedules.getDriverID())) {
+						System.out.println("-- DriverID In Use --");
+						arrangeSchedule();
+					} else {
+						System.out.println("-- DriverID Is Free To Use --");
 
-							break;
+						Date start = new Date();
+						System.out.println("Specify Start Date:");
+						String startDate = in.next();
+
+						DateTimeFormatter sdf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+						Calendar c = Calendar.getInstance();
+						c.add(Calendar.DATE, 2);
+						start = c.getTime();
+
+						if (new SimpleDateFormat("dd/MM/yyyy").parse(startDate).after(start)) {
+							System.out.println("-- Valid Start Date --");
+
+							Date end = new Date();
+
+							System.out.println("Specify End Date:");
+							String endDate = in.next();
+
+							Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
+
+							Calendar cal = Calendar.getInstance();
+							cal.setTime(date1);
+							cal.add(Calendar.DATE, 3);
+
+							Date endDate72 = c.getTime();
+
+							// endDate + 72 hours
+
+							Date dateEnd = new Date();
+
+							if (new SimpleDateFormat("dd/MM/yyyy").parse(endDate).before(endDate72)) {
+								System.out.println("-- End Date Must Be 72 Hours Before Start Date --");
+								arrangeSchedule();
+							} else {
+								System.out.println("* VALID END *");
+
+								System.out.println("Specify Start Time For Entered Start Date(HH:mm:ss):");
+								String startTime = in.next();
+								LocalTime lt = LocalTime.parse(startTime);
+
+								System.out.println("Specify End Time For Entered End Date(HH:mm:ss):");
+								String endTime = in.next();
+								LocalTime lt2 = LocalTime.parse(endTime);
+
+								System.out.println("Start Date: " + startDate);
+								System.out.println("End Date: " + endDate);
+								System.out.println("Start time: " + startTime);
+								System.out.println("End time: " + endTime + "\nIs this correct? (Y/N)");
+								String choice = in.next();
+								if (choice.equalsIgnoreCase("Y")) {
+
+									List<WorkSchedule> schedules = new ArrayList<WorkSchedule>();
+									try {
+										Scanner fileReader = new Scanner(new FileReader("src/schedule.csv"));
+										while (fileReader.hasNextLine()) {
+											String line = fileReader.nextLine();
+											String[] splitLine = line.split(",");
+
+											schedules.add(new WorkSchedule(client, startDate, endDate, startTime,
+													endTime, vehicleReg, driverID));
+
+											break;
+										}
+										fileReader.close();
+
+									} catch (Exception e) {
+										System.out.println(e);
+									}
+									System.out.println(schedules.size());
+									FileWriter csvWriter = new FileWriter("src/schedule.csv", true);
+
+									List<List<String>> rows = Arrays.asList(Arrays.asList(client, startDate, endDate,
+											startTime, endTime, vehicleReg, driverID));
+
+									for (List<String> rowData : rows) {
+										csvWriter.append(String.join(",", rowData));
+										csvWriter.append(",");
+										csvWriter.append("\n");
+									}
+
+									csvWriter.flush();
+									csvWriter.close();
+
+									System.out.println("-- Schedule Added Successfully --");
+
+								} else if (choice.equalsIgnoreCase("N")) {
+									System.out.println("-- Schedule Cancelled --");
+									arrangeSchedule();
+								}
+
+							}
+
+						} else {
+							System.out.println("-- Start Date Must Be 48 Hours From Today --");
+							arrangeSchedule();
 						}
-						fileReader.close();
-
-					} catch (Exception e) {
-						System.out.println(e);
-					}
-					System.out.println(schedules.size());
-					FileWriter csvWriter = new FileWriter("src/schedule.csv", true);
-
-					for (WorkSchedule ws : schedules) {
-						csvWriter.append(ws.getClient() + "," + ws.getStartDate() + "," + ws.getEndDate() + ","
-								+ ws.getStartTime() + "," + ws.getEndTime() + "," + ws.getVehicleReg() + ","
-								+ ws.getDriverID() + "\n");
-
-						csvWriter.close();
 					}
 
-					System.out.println("-- Schedule Added Successfully --");
-
-				} else if (choice.equalsIgnoreCase("N")) {
-					System.out.println("-- Schedule Cancelled --");
-					arrangeSchedule();
 				}
 
 			}
-
-		} else {
-			System.out.println("-- Start Date Must Be 48 Hours From Today --");
-			arrangeSchedule();
 		}
+
 	}
 
 	private static void driversAvailable() throws IOException {
@@ -407,7 +440,7 @@ public class Sys {
 		Collections.sort(Userlines);
 		Userlines.removeAll(lines);
 
-//System.out.println(UserDetails);
+		// System.out.println(UserDetails);
 
 		int userSize = UserDetails.size();// need??
 		int size = Userlines.size();
