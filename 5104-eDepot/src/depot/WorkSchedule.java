@@ -9,6 +9,7 @@ import java.util.Date;
 
 public class WorkSchedule {
 	private String client;
+	private String vehicleType;
 	private Date startDate;
 	private Date endDate;
 	private LocalTime startTime;
@@ -17,10 +18,11 @@ public class WorkSchedule {
 	private String vehicleReg;
 	private String driverID;
 
-	public WorkSchedule(String client, String startDate, String endDate, String startTime, String endTime,
+	public WorkSchedule(String client, String vehicleType, String startDate, String endDate, String startTime, String endTime,
 			String vehicleReg, String driverID) throws ParseException {
 
 		this.client = client;
+		this.vehicleType = vehicleType;
 		this.startDate = new SimpleDateFormat("dd/MM/yyyy").parse(startDate);
 		this.endDate = new SimpleDateFormat("dd/MM/yyyy").parse(endDate);
 		this.startTime = LocalTime.parse(startTime);
@@ -32,6 +34,10 @@ public class WorkSchedule {
 
 	public String getClient() {
 		return this.client;
+	}
+	
+	public String getvehicleType() {
+		return this.vehicleType;
 	}
 
 	public Date getStartDate() {

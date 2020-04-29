@@ -207,8 +207,7 @@ public class Sys {
 				reader.close();
 			}
 
-		}else
-		{
+		} else {
 			System.out.println("NO JOBS ");
 			reader.close();
 
@@ -281,7 +280,7 @@ public class Sys {
 		while (ss.hasNextLine()) {
 			String s = ss.nextLine();
 			String[] split = s.split(",");
-			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6]);
+			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6], split[7]);
 			workschedules.add(y);
 		}
 
@@ -381,7 +380,7 @@ public class Sys {
 										String line = fileReader.nextLine();
 										String[] splitLine = line.split(",");
 
-										schedules.add(new WorkSchedule(client, startDate, endDate, startTime, endTime,
+										schedules.add(new WorkSchedule(client, vehicleType, startDate, endDate, startTime, endTime,
 												vehicleReg, driverID));
 
 										break;
@@ -539,6 +538,68 @@ public class Sys {
 
 	}
 
+	private static void truck() throws IOException, ParseException {
+		BufferedReader scheduleReader = new BufferedReader(new FileReader("src/schedule.csv"));
+		Scanner scannerSchedule = new Scanner(new File("src/schedule.csv"));
+		List<String> types = new ArrayList<>();
+		List<String> regs = new ArrayList<>();
+		String line = "";
+
+		while (scannerSchedule.hasNextLine()) {
+			String s = scannerSchedule.nextLine();
+			String[] split = s.split(",");
+			WorkSchedule x = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6],
+					split[7]);
+			workschedules.add(x);
+
+		}
+
+		scannerSchedule.close();
+
+		String truck = "Truck";
+
+		boolean value = false;
+
+		WorkSchedule workschedule = null;
+		for (WorkSchedule ws : workschedules) {
+			if (ws.getvehicleType().equalsIgnoreCase(truck)) {
+
+				value = true;
+				workschedule = ws;
+			}
+		}
+
+		if (value == true) {
+			for (WorkSchedule ws : workschedules) {
+				if (ws.getvehicleType().equalsIgnoreCase("Truck")) {
+					while ((line = scheduleReader.readLine()) != null) {
+						String[] type = line.trim().split(",");
+						for (int w = 0; w < line.length(); w++) {
+							if (!types.contains(type[1])) {
+								types.add(type[1]);
+							}
+							if (!regs.contains(type[6])) {
+								regs.add(type[6]);
+							}
+							w++;
+							break;
+
+						}
+					}
+
+					System.out.println(types + " - " + regs);
+					break;
+
+				} else {
+
+					System.out.println("-- No Truck Data --");
+					arrangeSchedule();
+				}
+			}
+		}
+
+	}
+
 	private boolean checkDate(String start, String end) {
 		String dateFormat = "[0-3][0-9]/[0-1][0-9]/20[0-9][0-9] [0-2][0-9]:[0-6][0-9]";
 
@@ -562,7 +623,7 @@ public class Sys {
 		while (su.hasNextLine()) {
 			String s = su.nextLine();
 			String[] split = s.split(",");
-			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6]);
+			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6], split[7]);
 			workschedules.add(y);
 		}
 
@@ -593,7 +654,7 @@ public class Sys {
 		while (su.hasNextLine()) {
 			String s = su.nextLine();
 			String[] split = s.split(",");
-			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6]);
+			WorkSchedule y = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6], split[7]);
 			workschedules.add(y);
 		}
 
