@@ -296,13 +296,14 @@ public class Sys {
 			// } else {
 			// System.out.println("-- Client Not Found --");
 
-			regAvailable();
+			//regAvailable();
 
 			System.out.println("List Vehicle Type (Truck or Tanker):");
 			String vehicleType = in.next();
 
 			if (vehicleType.equals("Truck")) {
-
+				truck();
+			
 			}
 
 			System.out.println("Enter Vehicle Reg:");
@@ -539,8 +540,8 @@ public class Sys {
 	}
 
 	private static void truck() throws IOException, ParseException {
-		BufferedReader scheduleReader = new BufferedReader(new FileReader("src/schedule.csv"));
-		Scanner scannerSchedule = new Scanner(new File("src/schedule.csv"));
+		BufferedReader scheduleReader = new BufferedReader(new FileReader("src/vehicle.csv"));
+		Scanner scannerSchedule = new Scanner(new File("src/vehicle.csv"));
 		List<String> types = new ArrayList<>();
 		List<String> regs = new ArrayList<>();
 		String line = "";
@@ -548,9 +549,8 @@ public class Sys {
 		while (scannerSchedule.hasNextLine()) {
 			String s = scannerSchedule.nextLine();
 			String[] split = s.split(",");
-			WorkSchedule x = new WorkSchedule(split[0], split[1], split[2], split[3], split[4], split[5], split[6],
-					split[7]);
-			workschedules.add(x);
+			Vehicle x = new Vehicle(split[0], split[1], split[2], split[3], split[4], split[5]);
+			vehicles.add(x);
 
 		}
 
@@ -560,26 +560,26 @@ public class Sys {
 
 		boolean value = false;
 
-		WorkSchedule workschedule = null;
-		for (WorkSchedule ws : workschedules) {
-			if (ws.getvehicleType().equalsIgnoreCase(truck)) {
+		Vehicle vehicle = null;
+		for (Vehicle v : vehicles) {
+			if (v.getvehicleType().equalsIgnoreCase(truck)) {
 
 				value = true;
-				workschedule = ws;
+				vehicle = v;
 			}
 		}
 
 		if (value == true) {
-			for (WorkSchedule ws : workschedules) {
-				if (ws.getvehicleType().equalsIgnoreCase("Truck")) {
+			for (Vehicle v : vehicles) {
+				if (v.getvehicleType().equalsIgnoreCase("Truck")) {
 					while ((line = scheduleReader.readLine()) != null) {
 						String[] type = line.trim().split(",");
 						for (int w = 0; w < line.length(); w++) {
-							if (!types.contains(type[1])) {
-								types.add(type[1]);
+							if (!types.contains(type[4])) {
+								types.add(type[4]);
 							}
-							if (!regs.contains(type[6])) {
-								regs.add(type[6]);
+							if (!regs.contains(type[3])) {
+								regs.add(type[3]);
 							}
 							w++;
 							break;
