@@ -587,6 +587,7 @@ public class Sys {
 						}
 					}
 
+					System.out.println("Trucks:");
 					System.out.println(types + " - " + regs);
 					break;
 
