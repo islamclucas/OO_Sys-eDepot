@@ -57,6 +57,7 @@ public class Sys {
 	}
 
 	// login menu every non logged in user sees
+
 	public static void loginMenu() throws FileNotFoundException {
 
 		Scanner su = new Scanner(new File("src/users.csv"));
@@ -98,6 +99,7 @@ public class Sys {
 	}
 
 	// Method which displays driver menu if user is a driver
+	
 	private static void driverMenu() throws IOException {
 		menuLoop = true;
 		while (menuLoop) {
@@ -130,6 +132,7 @@ public class Sys {
 	}
 
 	// Method which displays manager menu if user is a manager
+	//ASSUMPTION- Managers can view all schedules, and their personal schedule.
 	private static void managerMenu() throws IOException, ParseException {
 		String choice = "";
 		System.out.println("-- DEPOT SYSTEM--");
@@ -411,7 +414,6 @@ public class Sys {
 										//Check to make sure that the registration entered by the user is for a vehicle that exists
 										if (value == true) {
 											System.out.println("--Vehicle Found--");
-											System.out.println(vehicle.getMake());
 
 											driversAvailable();
 
@@ -475,8 +477,8 @@ public class Sys {
 															csvWriter.flush();
 															csvWriter.close();
 
-															System.out.println("-- Schedule Added Successfully --");
-
+															System.out.println("-- Schedule Added Successfully --\n");
+															managerMenu();
 															break;
 
 														} else if (choice.equalsIgnoreCase("N")) {
@@ -484,13 +486,14 @@ public class Sys {
 															arrangeSchedule();
 														}
 
-													} else {
+													} 
+												}else {
 														System.out.println("-- Driver Does Not Exist --");
 														arrangeSchedule();
 
 													}
 
-												}
+												
 											}
 
 										} else {
@@ -593,7 +596,7 @@ public class Sys {
 			//Driver names and IDs are displayed to the user to allow them to choose a correct values
 			String curID = Userlines.get(r);
 			String drivername = (UserDetails.get(r));
-			System.out.println("ID " + drivername);
+			System.out.println("ID _" + drivername);
 
 			reader.close();
 			UserReader.close();
@@ -802,6 +805,8 @@ public class Sys {
 	 * @return boolean true if vehicle exists, false if not
 	 *
 	 */
+	
+	//ASSUMPTION- vehicle can't be moved on its start date, but can be moved after its end date
 	private static void moveVehicle() throws IOException, ParseException {
 		Calendar cal = Calendar.getInstance();
 		Scanner in = new Scanner(System.in);
@@ -839,7 +844,6 @@ public class Sys {
 			
 			//Makes sure that the date is in the future
 			if (new SimpleDateFormat("dd/MM/yyyy").parse(moveDate).after(new Date())) {
-				System.out.println("--Date in Future--");
 
 				if (isVehicleAvailable(registrationValue, moveDate, "01/01/3000")) {
 					System.out.println("Specify depot you wish to move vehicle to:");
